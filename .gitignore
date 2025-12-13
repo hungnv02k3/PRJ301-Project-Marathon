@@ -1,2 +1,4 @@
 /PRJ301_Project_Marathon/build/
 /PRJ301_Project_Marathon/dist/
+/PRJ301_Project_Marathon/nbproject/
+PRJ301_Project_Marathon/web/WEB-INF/ConnectDB.properties
