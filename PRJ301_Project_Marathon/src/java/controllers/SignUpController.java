@@ -5,12 +5,16 @@
 
 package controllers;
 
+import dal.AccountDAO;
+import dal.RunnerDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import models.Account;
+import models.Runner;
 
 /**
  *
@@ -25,48 +29,61 @@ public class SignUpController extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet SignUpController</title>");  
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet SignUpController at " + request.getContextPath () + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    } 
-
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /** 
-     * Handles the HTTP <code>GET</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-                request.getRequestDispatcher("signup.jsp").forward(request, response);
-    } 
+            throws ServletException, IOException {
 
-    /** 
-     * Handles the HTTP <code>POST</code> method.
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+        request.getRequestDispatcher("views/signup.jsp").forward(request, response);
+    }
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
-        processRequest(request, response);
+            throws ServletException, IOException {
+
+        request.setCharacterEncoding("UTF-8");
+
+        String username = request.getParameter("username");
+        String password = request.getParameter("password");
+        String fullName = request.getParameter("fullName");
+        String gender = request.getParameter("gender");
+        String dob = request.getParameter("dob");
+        String email = request.getParameter("email");
+        String phone = request.getParameter("phone");
+
+        try {
+            AccountDAO accountDAO = new AccountDAO();
+            RunnerDAO runnerDAO = new RunnerDAO();
+
+            // 1. check trùng username
+            if (accountDAO.getAccountByUsername(username) != null) {
+                request.setAttribute("error", "Username already exists!");
+                request.getRequestDispatcher("signup.jsp").forward(request, response);
+                return;
+            }
+
+            // 2. tạo account
+            Account acc = new Account(username, password, "runner");
+            int accountId = accountDAO.insertAccount(acc);
+
+            // 3. tạo runner
+            Runner r = new Runner(
+                    accountId,
+                    fullName,
+                    gender,
+                    java.sql.Date.valueOf(dob),
+                    email,
+                    phone
+            );
+
+            runnerDAO.insertRunner(r);
+
+            response.sendRedirect("login.jsp");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Signup failed!");
+            request.getRequestDispatcher("signup.jsp").forward(request, response);
+        }
     }
 
     /** 
