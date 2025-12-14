@@ -1,6 +1,7 @@
 package models;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 
 /**
  *
@@ -12,6 +13,7 @@ public class Event {
     private String name;
     private String description;
     private Date eventDate;
+    private Timestamp eventStartTime; 
     private String location;
     private int maxParticipants;
     private Date registrationDeadline;
@@ -32,6 +34,14 @@ public class Event {
         this.maxParticipants = maxParticipants;
         this.registrationDeadline = registrationDeadline;
         this.status = status;
+    }
+
+    public Timestamp getEventStartTime() {
+        return eventStartTime;
+    }
+
+    public void setEventStartTime(Timestamp eventStartTime) {
+        this.eventStartTime = eventStartTime;
     }
 
     public int getEventId() {
@@ -115,4 +125,6 @@ public class Event {
         return eventDate.before(today) || eventDate.equals(today);
     }
 }
+
+
 

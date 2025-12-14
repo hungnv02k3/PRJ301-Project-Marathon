@@ -117,5 +117,76 @@ public class RegistrationDAO extends DBContext {
         }
         return count;
     }
+    
+    public void assignBibNumber(int registrationId, String bibNumber) {
+        try {
+            String sqlStatement = "UPDATE Registrations SET bib_number = ? WHERE registration_id = ?";
+            stm = connection.prepareStatement(sqlStatement);
+            stm.setString(1, bibNumber);
+            stm.setInt(2, registrationId);
+            stm.executeUpdate();
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+    
+    public boolean isBibNumberExists(int eventId, String bibNumber) {
+        try {
+            String sqlStatement = "SELECT COUNT(*) as count FROM Registrations WHERE event_id = ? AND bib_number = ?";
+            stm = connection.prepareStatement(sqlStatement);
+            stm.setInt(1, eventId);
+            stm.setString(2, bibNumber);
+            rs = stm.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("count") > 0;
+            }
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        return false;
+    }
+    
+    public String generateUniqueBibNumber(int eventId) {
+        try {
+            String getEventSql = "SELECT name FROM Events WHERE event_id = ?";
+            PreparedStatement getEventStm = connection.prepareStatement(getEventSql);
+            getEventStm.setInt(1, eventId);
+            ResultSet eventRs = getEventStm.executeQuery();
+            
+            String prefix = "EVT";
+            if (eventRs.next()) {
+                String eventName = eventRs.getString("name");
+                if (eventName.contains("Hanoi")) {
+                    prefix = "HM";
+                } else if (eventName.contains("Saigon")) {
+                    prefix = "SGN";
+                } else {
+                    prefix = eventName.replaceAll("[^A-Z]", "").substring(0, Math.min(3, eventName.replaceAll("[^A-Z]", "").length()));
+                }
+            }
+            
+            // Generate random number and check uniqueness
+            String bibNumber;
+            int attempts = 0;
+            do {
+                int randomNum = 1000 + (int)(Math.random() * 9000); 
+                bibNumber = prefix + randomNum;
+                attempts++;
+                if (attempts > 100) {
+                    // Fallback: use timestamp
+                    bibNumber = prefix + System.currentTimeMillis() % 10000;
+                    break;
+                }
+            } while (isBibNumberExists(eventId, bibNumber));
+            
+            return bibNumber;
+        } catch (Exception e) {
+            System.out.println(e);
+            // Fallback
+            return "EVT" + (1000 + (int)(Math.random() * 9000));
+        }
+    }
 }
+
+
 
