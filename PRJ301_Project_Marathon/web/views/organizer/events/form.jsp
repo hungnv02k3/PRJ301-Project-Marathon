@@ -39,11 +39,6 @@
                             </div>
                             
                             <div class="form-group">
-                                <label for="eventDate">Event Date *</label>
-                                <input type="date" class="form-control" id="eventDate" name="eventDate" value="${event.eventDate}" required>
-                            </div>
-                            
-                            <div class="form-group">
                                 <label for="eventStartTime">Event Start Time *</label>
                                 <input type="datetime-local" step="1" class="form-control" id="eventStartTime" name="eventStartTime" 
                                        <c:choose>
@@ -69,7 +64,16 @@
                             
                             <div class="form-group">
                                 <label for="registrationDeadline">Registration Deadline *</label>
-                                <input type="date" class="form-control" id="registrationDeadline" name="registrationDeadline" value="${event.registrationDeadline}" required>
+                                <input type="datetime-local" step="1" class="form-control" id="registrationDeadline" name="registrationDeadline" 
+                                       <c:choose>
+                                           <c:when test="${event != null && event.registrationDeadline != null}">
+                                               value="<fmt:formatDate value="${event.registrationDeadline}" pattern="yyyy-MM-dd" />T23:59:59"
+                                           </c:when>
+                                       </c:choose> required>
+                                <small class="help-block">Must be before or equal to Event Start Time</small>
+                                <div id="registrationDeadlineError" class="alert alert-danger" style="display: none; margin-top: 10px;">
+                                    <i class="fa fa-exclamation-circle"></i> Registration deadline must be before or equal to Event Start Time!
+                                </div>
                             </div>
                             
                             <div class="form-group">
@@ -91,4 +95,43 @@
         </div>
     </div>
 </section>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const eventStartTimeInput = document.getElementById('eventStartTime');
+        const registrationDeadlineInput = document.getElementById('registrationDeadline');
+        const errorDiv = document.getElementById('registrationDeadlineError');
+        const form = document.querySelector('form');
+        
+        function validateDeadline() {
+            const eventStartTime = eventStartTimeInput.value;
+            const registrationDeadline = registrationDeadlineInput.value;
+            
+            if (eventStartTime && registrationDeadline) {
+                const startTime = new Date(eventStartTime);
+                const deadline = new Date(registrationDeadline);
+                
+                if (deadline > startTime) {
+                    errorDiv.style.display = 'block';
+                    registrationDeadlineInput.setCustomValidity('Registration deadline must be before or equal to Event Start Time');
+                    return false;
+                } else {
+                    errorDiv.style.display = 'none';
+                    registrationDeadlineInput.setCustomValidity('');
+                    return true;
+                }
+            }
+            return true;
+        }
+        
+        eventStartTimeInput.addEventListener('change', validateDeadline);
+        registrationDeadlineInput.addEventListener('change', validateDeadline);
+        
+        form.addEventListener('submit', function(e) {
+            if (!validateDeadline()) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    });
+</script>
 <jsp:include page="../../footer.jsp"/>

@@ -7,6 +7,8 @@ import dal.ResultDAO;
 import java.io.IOException;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -35,7 +37,7 @@ import models.Organizer;
     "/organizer/registrations/result/save"
 })
 public class OrganizerController extends HttpServlet {
-    
+   
     private EventDAO eventDAO = new EventDAO();
     private OrganizerDAO organizerDAO = new OrganizerDAO();
     private RegistrationDAO registrationDAO = new RegistrationDAO();
@@ -49,7 +51,7 @@ public class OrganizerController extends HttpServlet {
     
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    throws ServletException, IOException {
 
         int organizerId = 1;
         
@@ -87,7 +89,7 @@ public class OrganizerController extends HttpServlet {
     
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    throws ServletException, IOException {
 
         int organizerId = 1; 
         
@@ -215,7 +217,6 @@ public class OrganizerController extends HttpServlet {
         try {
             String name = request.getParameter("name");
             String description = request.getParameter("description");
-            String eventDateStr = request.getParameter("eventDate");
             String eventStartTimeStr = request.getParameter("eventStartTime");
             String location = request.getParameter("location");
             String maxParticipantsStr = request.getParameter("maxParticipants");
@@ -228,32 +229,50 @@ public class OrganizerController extends HttpServlet {
                 return;
             }
             
+            if (eventStartTimeStr == null || eventStartTimeStr.isEmpty()) {
+                request.setAttribute("error", "Event Start Time is required!");
+                request.getRequestDispatcher(ORGANIZER_EVENT_FORM_JSP).forward(request, response);
+                return;
+            }
+            
+            if (registrationDeadlineStr == null || registrationDeadlineStr.isEmpty()) {
+                request.setAttribute("error", "Registration Deadline is required!");
+                request.getRequestDispatcher(ORGANIZER_EVENT_FORM_JSP).forward(request, response);
+                return;
+            }
+            
+            // Parse event start time (ISO format: yyyy-MM-ddTHH:mm:ss)
+            LocalDateTime eventStartLocalDateTime = LocalDateTime.parse(eventStartTimeStr);
+            Timestamp eventStartTime = Timestamp.valueOf(eventStartLocalDateTime);
+            
+            // Parse registration deadline (ISO format: yyyy-MM-ddTHH:mm:ss)
+            LocalDateTime registrationDeadlineLocalDateTime = LocalDateTime.parse(registrationDeadlineStr);
+            Timestamp registrationDeadlineTimestamp = Timestamp.valueOf(registrationDeadlineLocalDateTime);
+            
+            if (registrationDeadlineTimestamp.after(eventStartTime)) {
+                request.setAttribute("error", "Registration deadline must be before or equal to Event Start Time!");
+                request.getRequestDispatcher(ORGANIZER_EVENT_FORM_JSP).forward(request, response);
+                return;
+            }
+            
+            Date eventDate = new Date(eventStartTime.getTime());
+            
             Event event = new Event();
             event.setOrganizerId(organizerId);
             event.setName(name);
             event.setDescription(description);
-            event.setEventDate(Date.valueOf(eventDateStr));
-            
-            // Parse event start time if provided
-            if (eventStartTimeStr != null && !eventStartTimeStr.isEmpty()) {
-                Timestamp eventStartTime = Timestamp.valueOf(eventStartTimeStr.replace("T", " "));
-                event.setEventStartTime(eventStartTime);
-            } else {
-                // Use event_date at 00:00:00
-                Timestamp defaultStart = new Timestamp(Date.valueOf(eventDateStr).getTime());
-                event.setEventStartTime(defaultStart);
-            }
-            
+            event.setEventDate(eventDate);
+            event.setEventStartTime(eventStartTime);
             event.setLocation(location);
             event.setMaxParticipants(Integer.parseInt(maxParticipantsStr));
-            event.setRegistrationDeadline(Date.valueOf(registrationDeadlineStr));
+            event.setRegistrationDeadline(new Date(registrationDeadlineTimestamp.getTime()));
             event.setStatus(status != null ? status : "Open");
             
             eventDAO.createEvent(event);
             response.sendRedirect(request.getContextPath() + "/organizer/events");
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("error", "Lỗi khi tạo sự kiện: " + e.getMessage());
+            request.setAttribute("error", "Error creating event: " + e.getMessage());
             request.getRequestDispatcher(ORGANIZER_EVENT_FORM_JSP).forward(request, response);
         }
     }
@@ -283,30 +302,46 @@ public class OrganizerController extends HttpServlet {
             
             String name = request.getParameter("name");
             String description = request.getParameter("description");
-            String eventDateStr = request.getParameter("eventDate");
             String eventStartTimeStr = request.getParameter("eventStartTime");
             String location = request.getParameter("location");
             String maxParticipantsStr = request.getParameter("maxParticipants");
             String registrationDeadlineStr = request.getParameter("registrationDeadline");
             String status = request.getParameter("status");
             
-            event.setName(name);
-            event.setDescription(description);
-            event.setEventDate(Date.valueOf(eventDateStr));
-            
-            // Parse event start time if provided
-            if (eventStartTimeStr != null && !eventStartTimeStr.isEmpty()) {
-                Timestamp eventStartTime = Timestamp.valueOf(eventStartTimeStr.replace("T", " "));
-                event.setEventStartTime(eventStartTime);
-            } else {
-                // Use event_date at 00:00:00
-                Timestamp defaultStart = new Timestamp(Date.valueOf(eventDateStr).getTime());
-                event.setEventStartTime(defaultStart);
+            if (eventStartTimeStr == null || eventStartTimeStr.isEmpty()) {
+                request.setAttribute("error", "Event Start Time is required!");
+                response.sendRedirect(request.getContextPath() + "/organizer/events/edit?id=" + eventId);
+                return;
             }
             
+            if (registrationDeadlineStr == null || registrationDeadlineStr.isEmpty()) {
+                request.setAttribute("error", "Registration Deadline is required!");
+                response.sendRedirect(request.getContextPath() + "/organizer/events/edit?id=" + eventId);
+                return;
+            }
+            
+            LocalDateTime eventStartLocalDateTime = LocalDateTime.parse(eventStartTimeStr);
+            Timestamp eventStartTime = Timestamp.valueOf(eventStartLocalDateTime);
+            
+            LocalDateTime registrationDeadlineLocalDateTime = LocalDateTime.parse(registrationDeadlineStr);
+            Timestamp registrationDeadlineTimestamp = Timestamp.valueOf(registrationDeadlineLocalDateTime);
+            
+            if (registrationDeadlineTimestamp.after(eventStartTime)) {
+                request.setAttribute("error", "Registration deadline must be before or equal to Event Start Time!");
+                response.sendRedirect(request.getContextPath() + "/organizer/events/edit?id=" + eventId);
+                return;
+            }
+            
+            Date eventDate = new Date(eventStartTime.getTime());
+            
+            event.setName(name);
+            event.setDescription(description);
+            event.setEventDate(eventDate);
+            event.setEventStartTime(eventStartTime);
             event.setLocation(location);
             event.setMaxParticipants(Integer.parseInt(maxParticipantsStr));
-            event.setRegistrationDeadline(Date.valueOf(registrationDeadlineStr));
+            // Convert Timestamp to Date for registration deadline (store only date part)
+            event.setRegistrationDeadline(new Date(registrationDeadlineTimestamp.getTime()));
             event.setStatus(status);
             
             eventDAO.updateEvent(event);
@@ -428,7 +463,6 @@ public class OrganizerController extends HttpServlet {
             int registrationId = Integer.parseInt(registrationIdStr);
             int eventId = Integer.parseInt(eventIdStr);
             
-            // Check if event has started
             Event event = eventDAO.getEventById(eventId);
             if (event != null && event.hasStarted()) {
                 request.setAttribute("error", "Cannot assign bib number after event has started!");
@@ -436,7 +470,6 @@ public class OrganizerController extends HttpServlet {
                 return;
             }
             
-            // Generate unique bib number
             String bibNumber = registrationDAO.generateUniqueBibNumber(eventId);
             registrationDAO.assignBibNumber(registrationId, bibNumber);
             
@@ -505,7 +538,6 @@ public class OrganizerController extends HttpServlet {
                 return;
             }
             
-            // Parse finish time (format: yyyy-MM-dd'T'HH:mm:ss or yyyy-MM-dd'T'HH:mm)
             Timestamp finishTime;
             if (finishTimeStr.contains("T")) {
                 String timePart = finishTimeStr.split("T")[1];
@@ -518,7 +550,6 @@ public class OrganizerController extends HttpServlet {
                 finishTime = Timestamp.valueOf(finishTimeStr);
             }
             
-            // Get start time from event
             Timestamp startTime = event.getEventStartTime();
             if (startTime == null && event.getEventDate() != null) {
                 startTime = new Timestamp(event.getEventDate().getTime());

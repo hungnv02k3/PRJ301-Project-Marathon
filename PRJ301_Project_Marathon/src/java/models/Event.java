@@ -116,8 +116,11 @@ public class Event {
         this.status = status;
     }
     
-    // Helper method to check if event has started
     public boolean hasStarted() {
+        if (eventStartTime != null) {
+            java.util.Date now = new java.util.Date();
+            return eventStartTime.before(now) || eventStartTime.equals(now);
+        }
         if (eventDate == null) {
             return false;
         }
