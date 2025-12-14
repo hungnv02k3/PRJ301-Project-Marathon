@@ -25,7 +25,8 @@ public class ResultDAO extends DBContext {
                                + "INNER JOIN Registrations r ON res.registration_id = r.registration_id "
                                + "INNER JOIN Runners ru ON r.runner_id = ru.runner_id "
                                + "INNER JOIN Events e ON r.event_id = e.event_id "
-                               + "WHERE e.event_id = ? ORDER BY res.ranking_overall ASC, res.net_time ASC";
+                               + "WHERE e.event_id = ? AND r.status = 'Registered' "
+                               + "ORDER BY res.ranking_overall ASC, res.net_time ASC";
             stm = connection.prepareStatement(sqlStatement);
             stm.setInt(1, eventId);
             rs = stm.executeQuery();
@@ -103,23 +104,7 @@ public class ResultDAO extends DBContext {
             
             Timestamp startTime = null;
             if (eventStartRs.next()) {
-                try {
-                    java.sql.ResultSetMetaData metaData = eventStartRs.getMetaData();
-                    int columnCount = metaData.getColumnCount();
-                    boolean hasEventStartTime = false;
-                    for (int i = 1; i <= columnCount; i++) {
-                        if ("event_start_time".equalsIgnoreCase(metaData.getColumnName(i))) {
-                            hasEventStartTime = true;
-                            break;
-                        }
-                    }
-                    if (hasEventStartTime) {
-                        startTime = eventStartRs.getTimestamp("event_start_time");
-                    }
-                } catch (Exception e) {
-                    // Column doesn't exist
-                }
-                // If event_start_time is null or column doesn't exist, use event_date at 00:00:00
+                startTime = eventStartRs.getTimestamp("event_start_time");
                 if (startTime == null) {
                     Date eventDate = eventStartRs.getDate("event_date");
                     if (eventDate != null) {
@@ -175,30 +160,40 @@ public class ResultDAO extends DBContext {
             ResultSet eventRs = getEventStm.executeQuery();
             
             if (eventRs.next()) {
-                int eventId = eventRs.getInt("event_id");
+                int eventId = eventRs.getInt("event_id");              
+                String resetRankSql = "UPDATE Results SET ranking_overall = NULL "
+                                    + "WHERE registration_id IN ("
+                                    + "    SELECT registration_id FROM Registrations WHERE event_id = ?"
+                                    + ")";
+                PreparedStatement resetStm = connection.prepareStatement(resetRankSql);
+                resetStm.setInt(1, eventId);
+                resetStm.executeUpdate();
                 
-                String getResultsSql = "SELECT registration_id FROM Results res "
+                String getResultsSql = "SELECT res.result_id, res.registration_id, res.net_time "
+                                     + "FROM Results res "
                                      + "INNER JOIN Registrations r ON res.registration_id = r.registration_id "
-                                     + "WHERE r.event_id = ? AND res.net_time IS NOT NULL "
+                                     + "WHERE r.event_id = ? AND r.status = 'Registered' AND res.net_time IS NOT NULL "
                                      + "ORDER BY res.net_time ASC";
                 PreparedStatement getResultsStm = connection.prepareStatement(getResultsSql);
                 getResultsStm.setInt(1, eventId);
                 ResultSet resultsRs = getResultsStm.executeQuery();
                 
+                // Assign rankings
                 int rank = 1;
-                String updateRankSql = "UPDATE Results SET ranking_overall = ? WHERE registration_id = ?";
+                String updateRankSql = "UPDATE Results SET ranking_overall = ? WHERE result_id = ?";
                 PreparedStatement updateRankStm = connection.prepareStatement(updateRankSql);
                 
                 while (resultsRs.next()) {
-                    int regId = resultsRs.getInt("registration_id");
+                    int resultId = resultsRs.getInt("result_id");
                     updateRankStm.setInt(1, rank);
-                    updateRankStm.setInt(2, regId);
+                    updateRankStm.setInt(2, resultId);
                     updateRankStm.executeUpdate();
                     rank++;
                 }
             }
         } catch (Exception e) {
-            System.out.println(e);
+            System.out.println("Error recalculating rankings: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
