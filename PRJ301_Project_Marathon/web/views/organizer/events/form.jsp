@@ -1,138 +1,94 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title><c:choose><c:when test="${event != null}">Sửa Sự kiện</c:when><c:otherwise>Tạo Sự kiện Mới</c:otherwise></c:choose> - Organizer</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #333;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #333;
-        }
-        input[type="text"],
-        input[type="date"],
-        input[type="number"],
-        textarea,
-        select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-size: 14px;
-        }
-        textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-        .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            background: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            border: none;
-            cursor: pointer;
-            margin: 10px 5px;
-        }
-        .btn:hover {
-            background: #0056b3;
-        }
-        .btn-secondary {
-            background: #6c757d;
-        }
-        .btn-secondary:hover {
-            background: #5a6268;
-        }
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 10px;
-            border-radius: 4px;
-            margin: 10px 0;
-        }
-    </style>
-</head>
-<body>
+<jsp:include page="../../header.jsp"/>
+<section>
     <div class="container">
-        <h1><c:choose><c:when test="${event != null}">Sửa Sự kiện</c:when><c:otherwise>Tạo Sự kiện Mới</c:otherwise></c:choose></h1>
+        <div class="row">
+            <div class="col-sm-12">
+                <h2 class="title text-center"><c:choose><c:when test="${event != null}">Edit Event</c:when><c:otherwise>Create New Event</c:otherwise></c:choose></h2>
+            </div>
+        </div>
         
         <c:if test="${not empty error}">
-            <div class="error">${error}</div>
+            <div class="alert alert-danger">
+                <i class="fa fa-exclamation-circle"></i> ${error}
+            </div>
         </c:if>
         
-        <form method="post" action="${pageContext.request.contextPath}/organizer/events/<c:choose><c:when test="${event != null}">edit</c:when><c:otherwise>add</c:otherwise></c:choose>">
-            <c:if test="${event != null}">
-                <input type="hidden" name="eventId" value="${event.eventId}">
-            </c:if>
-            
-            <div class="form-group">
-                <label for="name">Tên sự kiện *</label>
-                <input type="text" id="name" name="name" value="${event.name}" required>
+        <div class="row">
+            <div class="col-sm-8 col-sm-offset-2">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <form method="post" action="${pageContext.request.contextPath}/organizer/events/<c:choose><c:when test="${event != null}">edit</c:when><c:otherwise>add</c:otherwise></c:choose>">
+                            <c:if test="${event != null}">
+                                <input type="hidden" name="eventId" value="${event.eventId}">
+                            </c:if>
+                            
+                            <div class="form-group">
+                                <label for="name">Event Name *</label>
+                                <input type="text" class="form-control" id="name" name="name" value="${event.name}" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="description">Description</label>
+                                <textarea class="form-control" id="description" name="description" rows="4">${event.description}</textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="eventDate">Event Date *</label>
+                                <input type="date" class="form-control" id="eventDate" name="eventDate" value="${event.eventDate}" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="eventStartTime">Event Start Time *</label>
+                                <input type="datetime-local" step="1" class="form-control" id="eventStartTime" name="eventStartTime" 
+                                       <c:choose>
+                                           <c:when test="${event != null && event.eventStartTime != null}">
+                                               value="<fmt:formatDate value="${event.eventStartTime}" pattern="yyyy-MM-dd'T'HH:mm:ss" />"
+                                           </c:when>
+                                           <c:when test="${event != null && event.eventDate != null}">
+                                               value="<fmt:formatDate value="${event.eventDate}" pattern="yyyy-MM-dd" />T00:00:00"
+                                           </c:when>
+                                       </c:choose> required>
+                                <small class="help-block">Format: YYYY-MM-DDTHH:MM:SS (select down to seconds)</small>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="location">Location *</label>
+                                <input type="text" class="form-control" id="location" name="location" value="${event.location}" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="maxParticipants">Max Participants *</label>
+                                <input type="number" class="form-control" id="maxParticipants" name="maxParticipants" value="${event.maxParticipants}" min="1" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="registrationDeadline">Registration Deadline *</label>
+                                <input type="date" class="form-control" id="registrationDeadline" name="registrationDeadline" value="${event.registrationDeadline}" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="status">Status *</label>
+                                <select class="form-control" id="status" name="status" required>
+                                    <option value="Open" <c:if test="${event.status == 'Open'}">selected</c:if>>Open</option>
+                                    <option value="Closed" <c:if test="${event.status == 'Closed'}">selected</c:if>>Closed</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Save</button>
+                                <a href="${pageContext.request.contextPath}/organizer/events" class="btn btn-default"><i class="fa fa-times"></i> Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
-            
-            <div class="form-group">
-                <label for="description">Mô tả</label>
-                <textarea id="description" name="description">${event.description}</textarea>
-            </div>
-            
-            <div class="form-group">
-                <label for="eventDate">Ngày tổ chức *</label>
-                <input type="date" id="eventDate" name="eventDate" value="${event.eventDate}" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="location">Địa điểm *</label>
-                <input type="text" id="location" name="location" value="${event.location}" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="maxParticipants">Số lượng tham gia tối đa *</label>
-                <input type="number" id="maxParticipants" name="maxParticipants" value="${event.maxParticipants}" min="1" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="registrationDeadline">Hạn đăng ký *</label>
-                <input type="date" id="registrationDeadline" name="registrationDeadline" value="${event.registrationDeadline}" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="status">Trạng thái *</label>
-                <select id="status" name="status" required>
-                    <option value="Open" <c:if test="${event.status == 'Open'}">selected</c:if>>Open</option>
-                    <option value="Closed" <c:if test="${event.status == 'Closed'}">selected</c:if>>Closed</option>
-                </select>
-            </div>
-            
-            <div>
-                <button type="submit" class="btn">Lưu</button>
-                <a href="${pageContext.request.contextPath}/organizer/events" class="btn btn-secondary">Hủy</a>
-            </div>
-        </form>
+        </div>
     </div>
-</body>
-</html>
-
+</section>
+<jsp:include page="../../footer.jsp"/>

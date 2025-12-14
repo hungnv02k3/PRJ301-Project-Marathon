@@ -1,165 +1,146 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Danh sách Đăng ký - Organizer</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #333;
-        }
-        .event-info {
-            background: #e7f3ff;
-            padding: 15px;
-            border-radius: 4px;
-            margin: 20px 0;
-        }
-        .btn {
-            display: inline-block;
-            padding: 8px 16px;
-            background: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            border: none;
-            cursor: pointer;
-            margin: 5px;
-            font-size: 14px;
-        }
-        .btn:hover {
-            background: #0056b3;
-        }
-        .btn-success {
-            background: #28a745;
-        }
-        .btn-success:hover {
-            background: #218838;
-        }
-        .btn-danger {
-            background: #dc3545;
-        }
-        .btn-danger:hover {
-            background: #c82333;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #007bff;
-            color: white;
-        }
-        tr:hover {
-            background-color: #f5f5f5;
-        }
-        .status {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        .status.registered {
-            background: #d4edda;
-            color: #155724;
-        }
-        .status.pending {
-            background: #fff3cd;
-            color: #856404;
-        }
-        .status.rejected {
-            background: #f8d7da;
-            color: #721c24;
-        }
-    </style>
-</head>
-<body>
+<jsp:include page="../../header.jsp"/>
+<section>
     <div class="container">
-        <h1>Danh sách Đăng ký</h1>
-        
-        <div class="event-info">
-            <h2>${event.name}</h2>
-            <p><strong>Ngày tổ chức:</strong> ${event.eventDate}</p>
-            <p><strong>Địa điểm:</strong> ${event.location}</p>
-            <p><strong>Trạng thái:</strong> ${event.status}</p>
+        <div class="row">
+            <div class="col-sm-12">
+                <h2 class="title text-center">Registration List</h2>
+            </div>
         </div>
         
-        <div>
-            <a href="${pageContext.request.contextPath}/organizer/events" class="btn">Về danh sách sự kiện</a>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <h3 class="panel-title"><i class="fa fa-calendar"></i> Event Information</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <p><strong>Event Name:</strong> ${event.name}</p>
+                            </div>
+                            <div class="col-sm-4">
+                                <p><strong>Event Date:</strong> ${event.eventDate}</p>
+                            </div>
+                            <div class="col-sm-4">
+                                <p><strong>Location:</strong> ${event.location}</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <p><strong>Status:</strong> 
+                                    <c:choose>
+                                        <c:when test="${event.status == 'Open'}">
+                                            <span class="label label-success">${event.status}</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="label label-danger">${event.status}</span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Họ tên</th>
-                    <th>Email</th>
-                    <th>Số điện thoại</th>
-                    <th>Bib Number</th>
-                    <th>Ngày đăng ký</th>
-                    <th>Trạng thái</th>
-                    <th>Thao tác</th>
-                </tr>
-            </thead>
-            <tbody>
-                <c:forEach var="reg" items="${registrations}">
-                    <tr>
-                        <td>${reg.registrationId}</td>
-                        <td>${reg.runnerName}</td>
-                        <td>${reg.runnerEmail}</td>
-                        <td>${reg.runnerPhone}</td>
-                        <td>${reg.bibNumber}</td>
-                        <td>${reg.registrationDate}</td>
-                        <td>
-                            <span class="status ${reg.status.toLowerCase()}">${reg.status}</span>
-                        </td>
-                        <td>
-                            <c:if test="${reg.status != 'Registered'}">
-                                <form method="post" action="${pageContext.request.contextPath}/organizer/registrations/approve" style="display:inline;">
-                                    <input type="hidden" name="registrationId" value="${reg.registrationId}">
-                                    <input type="hidden" name="eventId" value="${event.eventId}">
-                                    <button type="submit" class="btn btn-success">Phê duyệt</button>
-                                </form>
+        <div class="row">
+            <div class="col-sm-12">
+                <a href="${pageContext.request.contextPath}/organizer/events" class="btn btn-default"><i class="fa fa-arrow-left"></i> Back to Event List</a>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Bib Number</th>
+                                <th>Registration Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <c:forEach var="reg" items="${registrations}">
+                                <tr>
+                                    <td>${reg.registrationId}</td>
+                                    <td>${reg.runnerName}</td>
+                                    <td>${reg.runnerEmail}</td>
+                                    <td>${reg.runnerPhone}</td>
+                                    <td>${reg.bibNumber}</td>
+                                    <td>${reg.registrationDate}</td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${reg.status == 'Registered'}">
+                                                <span class="label label-success">${reg.status}</span>
+                                            </c:when>
+                                            <c:when test="${reg.status == 'Rejected'}">
+                                                <span class="label label-danger">${reg.status}</span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="label label-warning">${reg.status}</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${event.hasStarted()}">
+                                                <!-- Event has started - show result entry only for approved registrations -->
+                                                <c:if test="${reg.status == 'Registered'}">
+                                                    <a href="${pageContext.request.contextPath}/organizer/registrations/result?registrationId=${reg.registrationId}&eventId=${event.eventId}" class="btn btn-sm btn-primary"><i class="fa fa-clock-o"></i> Enter Result</a>
+                                                </c:if>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <!-- Event not started - show approve/reject and assign bib -->
+                                                <c:if test="${reg.status != 'Registered'}">
+                                                    <form method="post" action="${pageContext.request.contextPath}/organizer/registrations/approve" style="display:inline;">
+                                                        <input type="hidden" name="registrationId" value="${reg.registrationId}">
+                                                        <input type="hidden" name="eventId" value="${event.eventId}">
+                                                        <button type="submit" class="btn btn-sm btn-success"><i class="fa fa-check"></i> Approve</button>
+                                                    </form>
+                                                </c:if>
+                                                <c:if test="${reg.status != 'Rejected'}">
+                                                    <form method="post" action="${pageContext.request.contextPath}/organizer/registrations/reject" style="display:inline;">
+                                                        <input type="hidden" name="registrationId" value="${reg.registrationId}">
+                                                        <input type="hidden" name="eventId" value="${event.eventId}">
+                                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to reject this registration?')"><i class="fa fa-times"></i> Reject</button>
+                                                    </form>
+                                                </c:if>
+                                                <c:if test="${empty reg.bibNumber && reg.status == 'Registered'}">
+                                                    <form method="post" action="${pageContext.request.contextPath}/organizer/registrations/assign-bib" style="display:inline;">
+                                                        <input type="hidden" name="registrationId" value="${reg.registrationId}">
+                                                        <input type="hidden" name="eventId" value="${event.eventId}">
+                                                        <button type="submit" class="btn btn-sm btn-info"><i class="fa fa-tag"></i> Assign Bib</button>
+                                                    </form>
+                                                </c:if>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                </tr>
+                            </c:forEach>
+                            <c:if test="${empty registrations}">
+                                <tr>
+                                    <td colspan="8" class="text-center" style="padding: 20px;">
+                                        <i class="fa fa-info-circle"></i> No registrations found for this event.
+                                    </td>
+                                </tr>
                             </c:if>
-                            <c:if test="${reg.status != 'Rejected'}">
-                                <form method="post" action="${pageContext.request.contextPath}/organizer/registrations/reject" style="display:inline;">
-                                    <input type="hidden" name="registrationId" value="${reg.registrationId}">
-                                    <input type="hidden" name="eventId" value="${event.eventId}">
-                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Bạn có chắc muốn từ chối đăng ký này?')">Từ chối</button>
-                                </form>
-                            </c:if>
-                        </td>
-                    </tr>
-                </c:forEach>
-                <c:if test="${empty registrations}">
-                    <tr>
-                        <td colspan="8" style="text-align: center; padding: 20px;">
-                            Chưa có đăng ký nào cho sự kiện này.
-                        </td>
-                    </tr>
-                </c:if>
-            </tbody>
-        </table>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-</body>
-</html>
-
+</section>
+<jsp:include page="../../footer.jsp"/>

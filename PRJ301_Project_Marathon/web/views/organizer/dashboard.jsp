@@ -1,147 +1,92 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Dashboard - Organizer</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #333;
-        }
-        .stats {
-            display: flex;
-            gap: 20px;
-            margin: 20px 0;
-        }
-        .stat-card {
-            flex: 1;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border-left: 4px solid #007bff;
-        }
-        .stat-card h3 {
-            margin: 0 0 10px 0;
-            color: #666;
-            font-size: 14px;
-        }
-        .stat-card .value {
-            font-size: 32px;
-            font-weight: bold;
-            color: #007bff;
-        }
-        .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            background: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            margin: 10px 5px;
-        }
-        .btn:hover {
-            background: #0056b3;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #007bff;
-            color: white;
-        }
-        tr:hover {
-            background-color: #f5f5f5;
-        }
-        .status {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        .status.open {
-            background: #d4edda;
-            color: #155724;
-        }
-        .status.closed {
-            background: #f8d7da;
-            color: #721c24;
-        }
-    </style>
-</head>
-<body>
+<jsp:include page="../header.jsp"/>
+<section>
     <div class="container">
-        <h1>Dashboard - Quản lý Giải Chạy</h1>
-        
-        <div class="stats">
-            <div class="stat-card">
-                <h3>Tổng số sự kiện</h3>
-                <div class="value">${totalEvents}</div>
-            </div>
-            <div class="stat-card">
-                <h3>Tổng số đăng ký</h3>
-                <div class="value">${totalRegistrations}</div>
+        <div class="row">
+            <div class="col-sm-12">
+                <h2 class="title text-center">Dashboard - Marathon Management</h2>
             </div>
         </div>
         
-        <div>
-            <a href="${pageContext.request.contextPath}/organizer/events/add" class="btn">Tạo sự kiện mới</a>
-            <a href="${pageContext.request.contextPath}/organizer/events" class="btn">Xem tất cả sự kiện</a>
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Total Events</h3>
+                    </div>
+                    <div class="panel-body">
+                        <h1 class="text-center" style="color: #FE980F; font-size: 48px;">${totalEvents}</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Total Registrations</h3>
+                    </div>
+                    <div class="panel-body">
+                        <h1 class="text-center" style="color: #FE980F; font-size: 48px;">${totalRegistrations}</h1>
+                    </div>
+                </div>
+            </div>
         </div>
         
-        <h2>Danh sách sự kiện gần đây</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Tên sự kiện</th>
-                    <th>Ngày tổ chức</th>
-                    <th>Địa điểm</th>
-                    <th>Số lượng tối đa</th>
-                    <th>Trạng thái</th>
-                    <th>Thao tác</th>
-                </tr>
-            </thead>
-            <tbody>
-                <c:forEach var="event" items="${events}" begin="0" end="4">
-                    <tr>
-                        <td>${event.eventId}</td>
-                        <td>${event.name}</td>
-                        <td>${event.eventDate}</td>
-                        <td>${event.location}</td>
-                        <td>${event.maxParticipants}</td>
-                        <td>
-                            <span class="status ${event.status.toLowerCase()}">${event.status}</span>
-                        </td>
-                        <td>
-                            <a href="${pageContext.request.contextPath}/organizer/events/edit?id=${event.eventId}">Sửa</a> |
-                            <a href="${pageContext.request.contextPath}/organizer/registrations?eventId=${event.eventId}">Xem đăng ký</a>
-                        </td>
-                    </tr>
-                </c:forEach>
-            </tbody>
-        </table>
+        <div class="row">
+            <div class="col-sm-12">
+                <a href="${pageContext.request.contextPath}/organizer/events/add" class="btn btn-primary"><i class="fa fa-plus"></i> Create New Event</a>
+                <a href="${pageContext.request.contextPath}/organizer/events" class="btn btn-default"><i class="fa fa-list"></i> View All Events</a>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-sm-12">
+                <h2 class="title text-center">Recent Events</h2>
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Event Name</th>
+                                <th>Event Date</th>
+                                <th>Location</th>
+                                <th>Max Participants</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <c:forEach var="event" items="${events}" begin="0" end="4">
+                                <tr>
+                                    <td>${event.eventId}</td>
+                                    <td>${event.name}</td>
+                                    <td>${event.eventDate}</td>
+                                    <td>${event.location}</td>
+                                    <td>${event.maxParticipants}</td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${event.status == 'Open'}">
+                                                <span class="label label-success">${event.status}</span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="label label-danger">${event.status}</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                    <td>
+                                        <a href="${pageContext.request.contextPath}/organizer/events/edit?id=${event.eventId}" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
+                                        <a href="${pageContext.request.contextPath}/organizer/registrations?eventId=${event.eventId}" class="btn btn-sm btn-info"><i class="fa fa-users"></i> Registrations</a>
+                                    </td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-</body>
-</html>
-
+</section>
+<jsp:include page="../footer.jsp"/>

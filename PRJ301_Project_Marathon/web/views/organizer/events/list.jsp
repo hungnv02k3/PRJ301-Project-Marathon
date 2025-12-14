@@ -1,167 +1,95 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Danh sách Sự kiện - Organizer</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #333;
-        }
-        .btn {
-            display: inline-block;
-            padding: 10px 20px;
-            background: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            margin: 10px 5px;
-        }
-        .btn:hover {
-            background: #0056b3;
-        }
-        .btn-danger {
-            background: #dc3545;
-        }
-        .btn-danger:hover {
-            background: #c82333;
-        }
-        .btn-warning {
-            background: #ffc107;
-            color: #000;
-        }
-        .btn-warning:hover {
-            background: #e0a800;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #007bff;
-            color: white;
-        }
-        tr:hover {
-            background-color: #f5f5f5;
-        }
-        .status {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        .status.open {
-            background: #d4edda;
-            color: #155724;
-        }
-        .status.closed {
-            background: #f8d7da;
-            color: #721c24;
-        }
-        .error {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 10px;
-            border-radius: 4px;
-            margin: 10px 0;
-        }
-        .actions {
-            display: flex;
-            gap: 5px;
-        }
-        .actions a {
-            margin: 0;
-        }
-    </style>
-</head>
-<body>
+<jsp:include page="../../header.jsp"/>
+<section>
     <div class="container">
-        <h1>Danh sách Sự kiện</h1>
-        
-        <c:if test="${not empty error}">
-            <div class="error">${error}</div>
-        </c:if>
-        
-        <div>
-            <a href="${pageContext.request.contextPath}/organizer/dashboard" class="btn">Về Dashboard</a>
-            <a href="${pageContext.request.contextPath}/organizer/events/add" class="btn">Tạo sự kiện mới</a>
+        <div class="row">
+            <div class="col-sm-12">
+                <h2 class="title text-center">Event List</h2>
+            </div>
         </div>
         
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Tên sự kiện</th>
-                    <th>Mô tả</th>
-                    <th>Ngày tổ chức</th>
-                    <th>Địa điểm</th>
-                    <th>Số lượng tối đa</th>
-                    <th>Hạn đăng ký</th>
-                    <th>Trạng thái</th>
-                    <th>Thao tác</th>
-                </tr>
-            </thead>
-            <tbody>
-                <c:forEach var="event" items="${events}">
-                    <tr>
-                        <td>${event.eventId}</td>
-                        <td>${event.name}</td>
-                        <td>${event.description}</td>
-                        <td>${event.eventDate}</td>
-                        <td>${event.location}</td>
-                        <td>${event.maxParticipants}</td>
-                        <td>${event.registrationDeadline}</td>
-                        <td>
-                            <span class="status ${event.status.toLowerCase()}">${event.status}</span>
-                        </td>
-                        <td>
-                            <div class="actions">
-                                <c:choose>
-                                    <c:when test="${event.hasStarted()}">
-                                        <span style="color: #999;">Đã bắt đầu</span>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <a href="${pageContext.request.contextPath}/organizer/events/edit?id=${event.eventId}" class="btn">Sửa</a>
-                                        <form method="post" action="${pageContext.request.contextPath}/organizer/events/delete" style="display:inline;">
-                                            <input type="hidden" name="eventId" value="${event.eventId}">
-                                            <button type="submit" class="btn btn-danger" onclick="return confirm('Bạn có chắc muốn xóa sự kiện này?')">Xóa</button>
-                                        </form>
-                                    </c:otherwise>
-                                </c:choose>
-                                <c:if test="${event.status != 'Closed'}">
-                                    <form method="post" action="${pageContext.request.contextPath}/organizer/events/close" style="display:inline;">
-                                        <input type="hidden" name="eventId" value="${event.eventId}">
-                                        <button type="submit" class="btn btn-warning" onclick="return confirm('Bạn có chắc muốn đóng sự kiện này?')">Đóng</button>
-                                    </form>
-                                </c:if>
-                                <a href="${pageContext.request.contextPath}/organizer/registrations?eventId=${event.eventId}" class="btn">Xem đăng ký</a>
-                            </div>
-                        </td>
-                    </tr>
-                </c:forEach>
-            </tbody>
-        </table>
+        <c:if test="${not empty error}">
+            <div class="alert alert-danger">
+                <i class="fa fa-exclamation-circle"></i> ${error}
+            </div>
+        </c:if>
+        
+        <div class="row">
+            <div class="col-sm-12">
+                <a href="${pageContext.request.contextPath}/organizer/dashboard" class="btn btn-default"><i class="fa fa-arrow-left"></i> Back to Dashboard</a>
+                <a href="${pageContext.request.contextPath}/organizer/events/add" class="btn btn-primary"><i class="fa fa-plus"></i> Create New Event</a>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Event Name</th>
+                                <th>Description</th>
+                                <th>Event Date</th>
+                                <th>Location</th>
+                                <th>Max Participants</th>
+                                <th>Registration Deadline</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <c:forEach var="event" items="${events}">
+                                <tr>
+                                    <td>${event.eventId}</td>
+                                    <td>${event.name}</td>
+                                    <td>${event.description}</td>
+                                    <td>${event.eventDate}</td>
+                                    <td>${event.location}</td>
+                                    <td>${event.maxParticipants}</td>
+                                    <td>${event.registrationDeadline}</td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${event.status == 'Open'}">
+                                                <span class="label label-success">${event.status}</span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="label label-danger">${event.status}</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${event.hasStarted()}">
+                                                <span class="text-muted"><i class="fa fa-info-circle"></i> Started</span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <a href="${pageContext.request.contextPath}/organizer/events/edit?id=${event.eventId}" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
+                                                <form method="post" action="${pageContext.request.contextPath}/organizer/events/delete" style="display:inline;">
+                                                    <input type="hidden" name="eventId" value="${event.eventId}">
+                                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this event?')"><i class="fa fa-trash"></i> Delete</button>
+                                                </form>
+                                            </c:otherwise>
+                                        </c:choose>
+                                        <c:if test="${event.status != 'Closed'}">
+                                            <form method="post" action="${pageContext.request.contextPath}/organizer/events/close" style="display:inline;">
+                                                <input type="hidden" name="eventId" value="${event.eventId}">
+                                                <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Are you sure you want to close this event?')"><i class="fa fa-lock"></i> Close</button>
+                                            </form>
+                                        </c:if>
+                                        <a href="${pageContext.request.contextPath}/organizer/registrations?eventId=${event.eventId}" class="btn btn-sm btn-info"><i class="fa fa-users"></i> Registrations</a>
+                                    </td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-</body>
-</html>
-
+</section>
+<jsp:include page="../../footer.jsp"/>

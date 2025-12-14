@@ -3,13 +3,16 @@ package controllers;
 import dal.EventDAO;
 import dal.OrganizerDAO;
 import dal.RegistrationDAO;
+import dal.ResultDAO;
 import java.io.IOException;
 import java.sql.Date;
+import java.sql.Timestamp;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
 import models.Event;
 import models.Organizer;
 
@@ -26,23 +29,27 @@ import models.Organizer;
     "/organizer/events/close",
     "/organizer/registrations",
     "/organizer/registrations/approve",
-    "/organizer/registrations/reject"
+    "/organizer/registrations/reject",
+    "/organizer/registrations/assign-bib",
+    "/organizer/registrations/result",
+    "/organizer/registrations/result/save"
 })
 public class OrganizerController extends HttpServlet {
     
     private EventDAO eventDAO = new EventDAO();
     private OrganizerDAO organizerDAO = new OrganizerDAO();
     private RegistrationDAO registrationDAO = new RegistrationDAO();
+    private ResultDAO resultDAO = new ResultDAO();
     
     private static final String ORGANIZER_DASHBOARD_JSP = "/views/organizer/dashboard.jsp";
     private static final String ORGANIZER_EVENTS_JSP = "/views/organizer/events/list.jsp";
     private static final String ORGANIZER_EVENT_FORM_JSP = "/views/organizer/events/form.jsp";
     private static final String ORGANIZER_REGISTRATIONS_JSP = "/views/organizer/registrations/list.jsp";
+    private static final String ORGANIZER_RESULT_FORM_JSP = "/views/organizer/registrations/result-form.jsp";
     
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
 
         int organizerId = 1;
         
@@ -65,6 +72,9 @@ public class OrganizerController extends HttpServlet {
                 case "/organizer/registrations":
                     showRegistrationsList(request, response, request.getParameter("eventId"));
                     break;
+                case "/organizer/registrations/result":
+                    showResultForm(request, response);
+                    break;
                 default:
                     response.sendRedirect(request.getContextPath() + "/organizer/dashboard");
                     break;
@@ -78,7 +88,6 @@ public class OrganizerController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
 
         int organizerId = 1; 
         
@@ -104,6 +113,12 @@ public class OrganizerController extends HttpServlet {
                 case "/organizer/registrations/reject":
                     rejectRegistration(request, response);
                     break;
+                case "/organizer/registrations/assign-bib":
+                    assignBibNumber(request, response);
+                    break;
+                case "/organizer/registrations/result/save":
+                    saveResult(request, response);
+                    break;
                 default:
                     response.sendRedirect(request.getContextPath() + "/organizer/dashboard");
                     break;
@@ -118,7 +133,7 @@ public class OrganizerController extends HttpServlet {
     private void showDashboard(HttpServletRequest request, HttpServletResponse response, int organizerId)
             throws ServletException, IOException {
         try {           
-            java.util.List<Event> events = eventDAO.getEventsByOrganizer(organizerId);
+            List<Event> events = eventDAO.getEventsByOrganizer(organizerId);
             request.setAttribute("events", events);
             request.setAttribute("totalEvents", events.size());
             
@@ -201,13 +216,14 @@ public class OrganizerController extends HttpServlet {
             String name = request.getParameter("name");
             String description = request.getParameter("description");
             String eventDateStr = request.getParameter("eventDate");
+            String eventStartTimeStr = request.getParameter("eventStartTime");
             String location = request.getParameter("location");
             String maxParticipantsStr = request.getParameter("maxParticipants");
             String registrationDeadlineStr = request.getParameter("registrationDeadline");
             String status = request.getParameter("status");
             
             if (name == null || name.trim().isEmpty()) {
-                request.setAttribute("error", "Tên sự kiện không được để trống!");
+                request.setAttribute("error", "Event name cannot be empty!");
                 request.getRequestDispatcher(ORGANIZER_EVENT_FORM_JSP).forward(request, response);
                 return;
             }
@@ -217,6 +233,17 @@ public class OrganizerController extends HttpServlet {
             event.setName(name);
             event.setDescription(description);
             event.setEventDate(Date.valueOf(eventDateStr));
+            
+            // Parse event start time if provided
+            if (eventStartTimeStr != null && !eventStartTimeStr.isEmpty()) {
+                Timestamp eventStartTime = Timestamp.valueOf(eventStartTimeStr.replace("T", " "));
+                event.setEventStartTime(eventStartTime);
+            } else {
+                // Use event_date at 00:00:00
+                Timestamp defaultStart = new Timestamp(Date.valueOf(eventDateStr).getTime());
+                event.setEventStartTime(defaultStart);
+            }
+            
             event.setLocation(location);
             event.setMaxParticipants(Integer.parseInt(maxParticipantsStr));
             event.setRegistrationDeadline(Date.valueOf(registrationDeadlineStr));
@@ -257,6 +284,7 @@ public class OrganizerController extends HttpServlet {
             String name = request.getParameter("name");
             String description = request.getParameter("description");
             String eventDateStr = request.getParameter("eventDate");
+            String eventStartTimeStr = request.getParameter("eventStartTime");
             String location = request.getParameter("location");
             String maxParticipantsStr = request.getParameter("maxParticipants");
             String registrationDeadlineStr = request.getParameter("registrationDeadline");
@@ -265,6 +293,17 @@ public class OrganizerController extends HttpServlet {
             event.setName(name);
             event.setDescription(description);
             event.setEventDate(Date.valueOf(eventDateStr));
+            
+            // Parse event start time if provided
+            if (eventStartTimeStr != null && !eventStartTimeStr.isEmpty()) {
+                Timestamp eventStartTime = Timestamp.valueOf(eventStartTimeStr.replace("T", " "));
+                event.setEventStartTime(eventStartTime);
+            } else {
+                // Use event_date at 00:00:00
+                Timestamp defaultStart = new Timestamp(Date.valueOf(eventDateStr).getTime());
+                event.setEventStartTime(defaultStart);
+            }
+            
             event.setLocation(location);
             event.setMaxParticipants(Integer.parseInt(maxParticipantsStr));
             event.setRegistrationDeadline(Date.valueOf(registrationDeadlineStr));
@@ -371,6 +410,137 @@ public class OrganizerController extends HttpServlet {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            response.sendRedirect(request.getContextPath() + "/organizer/events");
+        }
+    }
+    
+    private void assignBibNumber(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            String registrationIdStr = request.getParameter("registrationId");
+            String eventIdStr = request.getParameter("eventId");
+            
+            if (registrationIdStr == null || registrationIdStr.isEmpty() || eventIdStr == null || eventIdStr.isEmpty()) {
+                response.sendRedirect(request.getContextPath() + "/organizer/events");
+                return;
+            }
+            
+            int registrationId = Integer.parseInt(registrationIdStr);
+            int eventId = Integer.parseInt(eventIdStr);
+            
+            // Check if event has started
+            Event event = eventDAO.getEventById(eventId);
+            if (event != null && event.hasStarted()) {
+                request.setAttribute("error", "Cannot assign bib number after event has started!");
+                response.sendRedirect(request.getContextPath() + "/organizer/registrations?eventId=" + eventId);
+                return;
+            }
+            
+            // Generate unique bib number
+            String bibNumber = registrationDAO.generateUniqueBibNumber(eventId);
+            registrationDAO.assignBibNumber(registrationId, bibNumber);
+            
+            response.sendRedirect(request.getContextPath() + "/organizer/registrations?eventId=" + eventId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect(request.getContextPath() + "/organizer/events");
+        }
+    }
+    
+    private void showResultForm(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            String registrationIdStr = request.getParameter("registrationId");
+            String eventIdStr = request.getParameter("eventId");
+            
+            if (registrationIdStr == null || registrationIdStr.isEmpty() || eventIdStr == null || eventIdStr.isEmpty()) {
+                response.sendRedirect(request.getContextPath() + "/organizer/events");
+                return;
+            }
+            
+            int registrationId = Integer.parseInt(registrationIdStr);
+            int eventId = Integer.parseInt(eventIdStr);
+            
+            Event event = eventDAO.getEventById(eventId);
+            if (event == null || !event.hasStarted()) {
+                request.setAttribute("error", "Event has not started yet!");
+                response.sendRedirect(request.getContextPath() + "/organizer/registrations?eventId=" + eventId);
+                return;
+            }
+            
+            models.Registration registration = registrationDAO.getRegistrationById(registrationId);
+            models.Result result = resultDAO.getResultByRegistration(registrationId);
+            
+            request.setAttribute("event", event);
+            request.setAttribute("registration", registration);
+            request.setAttribute("result", result);
+            request.getRequestDispatcher(ORGANIZER_RESULT_FORM_JSP).forward(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect(request.getContextPath() + "/organizer/events");
+        }
+    }
+    
+    private void saveResult(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            String registrationIdStr = request.getParameter("registrationId");
+            String eventIdStr = request.getParameter("eventId");
+            String finishTimeStr = request.getParameter("finishTime");
+            
+            if (registrationIdStr == null || registrationIdStr.isEmpty() || 
+                eventIdStr == null || eventIdStr.isEmpty() ||
+                finishTimeStr == null || finishTimeStr.isEmpty()) {
+                response.sendRedirect(request.getContextPath() + "/organizer/events");
+                return;
+            }
+            
+            int registrationId = Integer.parseInt(registrationIdStr);
+            int eventId = Integer.parseInt(eventIdStr);
+            
+            Event event = eventDAO.getEventById(eventId);
+            if (event == null || !event.hasStarted()) {
+                request.setAttribute("error", "Event has not started yet!");
+                response.sendRedirect(request.getContextPath() + "/organizer/registrations?eventId=" + eventId);
+                return;
+            }
+            
+            // Parse finish time (format: yyyy-MM-dd'T'HH:mm:ss or yyyy-MM-dd'T'HH:mm)
+            Timestamp finishTime;
+            if (finishTimeStr.contains("T")) {
+                String timePart = finishTimeStr.split("T")[1];
+                if (timePart.split(":").length == 2) {
+                    finishTime = Timestamp.valueOf(finishTimeStr.replace("T", " ") + ":00");
+                } else {
+                    finishTime = Timestamp.valueOf(finishTimeStr.replace("T", " "));
+                }
+            } else {
+                finishTime = Timestamp.valueOf(finishTimeStr);
+            }
+            
+            // Get start time from event
+            Timestamp startTime = event.getEventStartTime();
+            if (startTime == null && event.getEventDate() != null) {
+                startTime = new Timestamp(event.getEventDate().getTime());
+            }
+            
+            if (startTime == null) {
+                request.setAttribute("error", "Event start time is not set!");
+                response.sendRedirect(request.getContextPath() + "/organizer/registrations/result?registrationId=" + registrationId + "&eventId=" + eventId);
+                return;
+            }
+            
+            if (finishTime.before(startTime)) {
+                request.setAttribute("error", "Finish time must be after start time!");
+                response.sendRedirect(request.getContextPath() + "/organizer/registrations/result?registrationId=" + registrationId + "&eventId=" + eventId);
+                return;
+            }
+            
+            resultDAO.createOrUpdateResult(registrationId, finishTime);
+            response.sendRedirect(request.getContextPath() + "/organizer/registrations?eventId=" + eventId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Error saving result: " + e.getMessage());
             response.sendRedirect(request.getContextPath() + "/organizer/events");
         }
     }
