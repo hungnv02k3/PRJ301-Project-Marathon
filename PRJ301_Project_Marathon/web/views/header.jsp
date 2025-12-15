@@ -11,6 +11,10 @@
     <link href="${pageContext.request.contextPath}/static/css/animate.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/static/css/main.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/static/css/responsive.css" rel="stylesheet">
+    <!-- Leaflet.js CSS for maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+          crossorigin=""/>
     <!--[if lt IE 9]>
     <script src="${pageContext.request.contextPath}/static/js/html5shiv.js"></script>
     <script src="${pageContext.request.contextPath}/static/js/respond.min.js"></script>

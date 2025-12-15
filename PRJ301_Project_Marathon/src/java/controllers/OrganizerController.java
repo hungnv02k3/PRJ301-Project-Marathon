@@ -1,9 +1,11 @@
 package controllers;
 
+import dal.CheckpointDAO;
 import dal.EventDAO;
 import dal.OrganizerDAO;
 import dal.RegistrationDAO;
 import dal.ResultDAO;
+import dal.RouteDAO;
 import java.io.IOException;
 import java.sql.Date;
 import java.sql.Timestamp;
@@ -17,6 +19,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import models.Event;
 import models.Organizer;
+import models.Registration;
+import models.Route;
 
 /**
  *
@@ -27,14 +31,23 @@ import models.Organizer;
     "/organizer/events",
     "/organizer/events/add",
     "/organizer/events/edit",
-    "/organizer/events/delete",
+    "/organizer/events/pause",
     "/organizer/events/close",
     "/organizer/registrations",
     "/organizer/registrations/approve",
     "/organizer/registrations/reject",
     "/organizer/registrations/assign-bib",
     "/organizer/registrations/result",
-    "/organizer/registrations/result/save"
+    "/organizer/registrations/result/save",
+    "/organizer/routes",
+    "/organizer/routes/add",
+    "/organizer/routes/edit",
+    "/organizer/routes/delete",
+    "/organizer/routes/view",
+    "/organizer/checkpoints",
+    "/organizer/checkpoints/add",
+    "/organizer/checkpoints/edit",
+    "/organizer/checkpoints/delete"
 })
 public class OrganizerController extends HttpServlet {
    
@@ -42,12 +55,19 @@ public class OrganizerController extends HttpServlet {
     private OrganizerDAO organizerDAO = new OrganizerDAO();
     private RegistrationDAO registrationDAO = new RegistrationDAO();
     private ResultDAO resultDAO = new ResultDAO();
+    private RouteDAO routeDAO = new RouteDAO();
+    private CheckpointDAO checkpointDAO = new CheckpointDAO();
     
     private static final String ORGANIZER_DASHBOARD_JSP = "/views/organizer/dashboard.jsp";
     private static final String ORGANIZER_EVENTS_JSP = "/views/organizer/events/list.jsp";
     private static final String ORGANIZER_EVENT_FORM_JSP = "/views/organizer/events/form.jsp";
     private static final String ORGANIZER_REGISTRATIONS_JSP = "/views/organizer/registrations/list.jsp";
     private static final String ORGANIZER_RESULT_FORM_JSP = "/views/organizer/registrations/result-form.jsp";
+    private static final String ORGANIZER_ROUTES_JSP = "/views/organizer/routes/list.jsp";
+    private static final String ORGANIZER_ROUTE_FORM_JSP = "/views/organizer/routes/form.jsp";
+    private static final String ORGANIZER_ROUTE_VIEW_JSP = "/views/organizer/routes/view.jsp";
+    private static final String ORGANIZER_CHECKPOINTS_JSP = "/views/organizer/checkpoints/list.jsp";
+    private static final String ORGANIZER_CHECKPOINT_FORM_JSP = "/views/organizer/checkpoints/form.jsp";
     
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -77,6 +97,27 @@ public class OrganizerController extends HttpServlet {
                 case "/organizer/registrations/result":
                     showResultForm(request, response);
                     break;
+                case "/organizer/routes":
+                    showRoutesList(request, response, request.getParameter("eventId"));
+                    break;
+                case "/organizer/routes/add":
+                    showRouteForm(request, response, null, request.getParameter("eventId"));
+                    break;
+                case "/organizer/routes/edit":
+                    showRouteForm(request, response, request.getParameter("id"), null);
+                    break;
+                case "/organizer/routes/view":
+                    showRouteView(request, response, request.getParameter("id"));
+                    break;
+                case "/organizer/checkpoints":
+                    showCheckpointsList(request, response, request.getParameter("routeId"));
+                    break;
+                case "/organizer/checkpoints/add":
+                    showCheckpointForm(request, response, null, request.getParameter("routeId"));
+                    break;
+                case "/organizer/checkpoints/edit":
+                    showCheckpointForm(request, response, request.getParameter("id"), null);
+                    break;
                 default:
                     response.sendRedirect(request.getContextPath() + "/organizer/dashboard");
                     break;
@@ -103,8 +144,8 @@ public class OrganizerController extends HttpServlet {
                 case "/organizer/events/edit":
                     updateEvent(request, response, organizerId);
                     break;
-                case "/organizer/events/delete":
-                    deleteEvent(request, response);
+                case "/organizer/events/pause":
+                    pauseEvent(request, response);
                     break;
                 case "/organizer/events/close":
                     closeEvent(request, response);
@@ -120,6 +161,24 @@ public class OrganizerController extends HttpServlet {
                     break;
                 case "/organizer/registrations/result/save":
                     saveResult(request, response);
+                    break;
+                case "/organizer/routes/add":
+                    createRoute(request, response);
+                    break;
+                case "/organizer/routes/edit":
+                    updateRoute(request, response);
+                    break;
+                case "/organizer/routes/delete":
+                    deleteRoute(request, response);
+                    break;
+                case "/organizer/checkpoints/add":
+                    createCheckpoint(request, response);
+                    break;
+                case "/organizer/checkpoints/edit":
+                    updateCheckpoint(request, response);
+                    break;
+                case "/organizer/checkpoints/delete":
+                    deleteCheckpoint(request, response);
                     break;
                 default:
                     response.sendRedirect(request.getContextPath() + "/organizer/dashboard");
@@ -155,7 +214,7 @@ public class OrganizerController extends HttpServlet {
     private void showEventsList(HttpServletRequest request, HttpServletResponse response, int organizerId)
             throws ServletException, IOException {
         try {
-            java.util.List<Event> events = eventDAO.getEventsByOrganizer(organizerId);
+            List<Event> events = eventDAO.getEventsByOrganizer(organizerId);
             request.setAttribute("events", events);
             request.getRequestDispatcher(ORGANIZER_EVENTS_JSP).forward(request, response);
         } catch (Exception e) {
@@ -173,7 +232,7 @@ public class OrganizerController extends HttpServlet {
                 event = eventDAO.getEventById(eventId);
                 
                 if (event != null && event.hasStarted()) {
-                    request.setAttribute("error", "Không thể sửa giải chạy đã bắt đầu!");
+                    request.setAttribute("error", "Cannot edit started event!");
                     response.sendRedirect(request.getContextPath() + "/organizer/events");
                     return;
                 }
@@ -201,7 +260,7 @@ public class OrganizerController extends HttpServlet {
                 return;
             }
             
-            java.util.List<models.Registration> registrations = registrationDAO.getRegistrationsByEvent(eventId);
+            List<Registration> registrations = registrationDAO.getRegistrationsByEvent(eventId);
             request.setAttribute("event", event);
             request.setAttribute("registrations", registrations);
             request.getRequestDispatcher(ORGANIZER_REGISTRATIONS_JSP).forward(request, response);
@@ -290,7 +349,7 @@ public class OrganizerController extends HttpServlet {
             Event event = eventDAO.getEventById(eventId);
             
             if (event != null && event.hasStarted()) {
-                request.setAttribute("error", "Không thể sửa giải chạy đã bắt đầu!");
+                request.setAttribute("error", "Cannot edit started events!");
                 response.sendRedirect(request.getContextPath() + "/organizer/events");
                 return;
             }
@@ -348,12 +407,12 @@ public class OrganizerController extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/organizer/events");
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("error", "Lỗi khi cập nhật sự kiện: " + e.getMessage());
+            request.setAttribute("error", "Error when update event: " + e.getMessage());
             response.sendRedirect(request.getContextPath() + "/organizer/events/edit?id=" + request.getParameter("eventId"));
         }
     }
     
-    private void deleteEvent(HttpServletRequest request, HttpServletResponse response)
+    private void pauseEvent(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
             String eventIdStr = request.getParameter("eventId");
@@ -366,16 +425,16 @@ public class OrganizerController extends HttpServlet {
             Event event = eventDAO.getEventById(eventId);
             
             if (event != null && event.hasStarted()) {
-                request.setAttribute("error", "Không thể xóa giải chạy đã bắt đầu!");
+                request.setAttribute("error", "Cannot pause started event!");
                 response.sendRedirect(request.getContextPath() + "/organizer/events");
                 return;
             }
             
-            eventDAO.deleteEvent(eventId);
+            eventDAO.pauseEvent(eventId);
             response.sendRedirect(request.getContextPath() + "/organizer/events");
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("error", "Lỗi khi xóa sự kiện: " + e.getMessage());
+            request.setAttribute("error", "Error when pausing event: " + e.getMessage());
             response.sendRedirect(request.getContextPath() + "/organizer/events");
         }
     }
@@ -394,7 +453,7 @@ public class OrganizerController extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/organizer/events");
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("error", "Lỗi khi đóng sự kiện: " + e.getMessage());
+            request.setAttribute("error", "Error when close event: " + e.getMessage());
             response.sendRedirect(request.getContextPath() + "/organizer/events");
         }
     }
@@ -538,17 +597,12 @@ public class OrganizerController extends HttpServlet {
                 return;
             }
             
-            Timestamp finishTime;
-            if (finishTimeStr.contains("T")) {
-                String timePart = finishTimeStr.split("T")[1];
-                if (timePart.split(":").length == 2) {
-                    finishTime = Timestamp.valueOf(finishTimeStr.replace("T", " ") + ":00");
-                } else {
-                    finishTime = Timestamp.valueOf(finishTimeStr.replace("T", " "));
-                }
-            } else {
-                finishTime = Timestamp.valueOf(finishTimeStr);
+            // - If format is yyyy-MM-dd HH:mm (no seconds), append :00
+            String normalizedFinish = finishTimeStr.replace("T", " ");
+            if (normalizedFinish.length() == 16) { // yyyy-MM-dd HH:mm
+                normalizedFinish += ":00";
             }
+            Timestamp finishTime = Timestamp.valueOf(normalizedFinish);
             
             Timestamp startTime = event.getEventStartTime();
             if (startTime == null && event.getEventDate() != null) {
@@ -572,6 +626,463 @@ public class OrganizerController extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Error saving result: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/organizer/events");
+        }
+    }
+    
+    // Route Management Methods
+    private void showRoutesList(HttpServletRequest request, HttpServletResponse response, String eventIdStr)
+            throws ServletException, IOException {
+        try {
+            if (eventIdStr == null || eventIdStr.isEmpty()) {
+                response.sendRedirect("events");
+                return;
+            }
+            int eventId = Integer.parseInt(eventIdStr);
+            Event event = eventDAO.getEventById(eventId);
+            if (event == null) {
+                response.sendRedirect(request.getContextPath() + "events");
+                return;
+            }
+            List<Route> routes = routeDAO.getRoutesByEvent(eventId);
+            request.setAttribute("event", event);
+            request.setAttribute("routes", routes);
+            request.getRequestDispatcher(ORGANIZER_ROUTES_JSP).forward(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    private void showRouteForm(HttpServletRequest request, HttpServletResponse response, String routeIdStr, String eventIdStr)
+            throws ServletException, IOException {
+        try {
+            Route route = null;
+            Event event = null;
+            
+            if (routeIdStr != null && !routeIdStr.isEmpty()) {
+                int routeId = Integer.parseInt(routeIdStr);
+                route = routeDAO.getRouteById(routeId);
+                if (route != null) {
+                    event = eventDAO.getEventById(route.getEventId());
+                }
+            } else if (eventIdStr != null && !eventIdStr.isEmpty()) {
+                int eventId = Integer.parseInt(eventIdStr);
+                event = eventDAO.getEventById(eventId);
+            }
+            
+            if (event == null) {
+                response.sendRedirect("organizer/events");
+                return;
+            }
+            
+            request.setAttribute("route", route);
+            request.setAttribute("event", event);
+            request.getRequestDispatcher(ORGANIZER_ROUTE_FORM_JSP).forward(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    private void showRouteView(HttpServletRequest request, HttpServletResponse response, String routeIdStr)
+            throws ServletException, IOException {
+        try {
+            if (routeIdStr == null || routeIdStr.isEmpty()) {
+                response.sendRedirect(request.getContextPath() + "/organizer/events");
+                return;
+            }
+            int routeId = Integer.parseInt(routeIdStr);
+            models.Route route = routeDAO.getRouteById(routeId);
+            if (route == null) {
+                response.sendRedirect(request.getContextPath() + "/organizer/events");
+                return;
+            }
+            Event event = eventDAO.getEventById(route.getEventId());
+            List<models.Checkpoint> checkpoints = checkpointDAO.getCheckpointsByRoute(routeId);
+            request.setAttribute("route", route);
+            request.setAttribute("event", event);
+            request.setAttribute("checkpoints", checkpoints);
+            request.getRequestDispatcher(ORGANIZER_ROUTE_VIEW_JSP).forward(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    private void createRoute(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            String eventIdStr = request.getParameter("eventId");
+            String distanceKmStr = request.getParameter("distanceKm");
+            String description = request.getParameter("description");
+            String startLatStr = request.getParameter("startLat");
+            String startLngStr = request.getParameter("startLng");
+            String endLatStr = request.getParameter("endLat");
+            String endLngStr = request.getParameter("endLng");
+            
+            // Get checkpoints from form array parameters
+            String[] checkpointNames = request.getParameterValues("checkpointName[]");
+            String[] checkpointLats = request.getParameterValues("checkpointLat[]");
+            String[] checkpointLngs = request.getParameterValues("checkpointLng[]");
+            String[] checkpointOrders = request.getParameterValues("checkpointOrder[]");
+            
+            if (eventIdStr == null || eventIdStr.isEmpty()) {
+                request.setAttribute("error", "Event ID is required!");
+                response.sendRedirect(request.getContextPath() + "/organizer/events");
+                return;
+            }
+            
+            int eventId = Integer.parseInt(eventIdStr);
+            double distanceKm = distanceKmStr != null && !distanceKmStr.isEmpty() ? Double.parseDouble(distanceKmStr) : 0.0;
+            
+            models.Route route = new models.Route();
+            route.setEventId(eventId);
+            route.setDistanceKm(distanceKm);
+            route.setDescription(description);
+            
+            // Create route and get route_id
+            int routeId = routeDAO.createRoute(route);
+            
+            if (routeId == 0) {
+                request.setAttribute("error", "Error creating route!");
+                response.sendRedirect(request.getContextPath() + "/organizer/events");
+                return;
+            }
+            
+            // Update coordinates if provided
+            if (startLatStr != null && !startLatStr.isEmpty() && startLngStr != null && !startLngStr.isEmpty() &&
+                endLatStr != null && !endLatStr.isEmpty() && endLngStr != null && !endLngStr.isEmpty()) {
+                Double startLat = Double.parseDouble(startLatStr);
+                Double startLng = Double.parseDouble(startLngStr);
+                Double endLat = Double.parseDouble(endLatStr);
+                Double endLng = Double.parseDouble(endLngStr);
+                routeDAO.updateRouteCoordinates(routeId, startLat, startLng, endLat, endLng);
+            }
+            
+            // Create checkpoints if provided (from form array parameters)
+            if (checkpointNames != null && checkpointNames.length > 0 &&
+                checkpointLats != null && checkpointLats.length == checkpointNames.length &&
+                checkpointLngs != null && checkpointLngs.length == checkpointNames.length &&
+                checkpointOrders != null && checkpointOrders.length == checkpointNames.length) {
+                try {
+                    for (int i = 0; i < checkpointNames.length; i++) {
+                        String name = checkpointNames[i];
+                        String latStr = checkpointLats[i];
+                        String lngStr = checkpointLngs[i];
+                        String orderStr = checkpointOrders[i];
+                        
+                        if (name != null && !name.isEmpty() && 
+                            latStr != null && !latStr.isEmpty() &&
+                            lngStr != null && !lngStr.isEmpty() &&
+                            orderStr != null && !orderStr.isEmpty()) {
+                            
+                            models.Checkpoint checkpoint = new models.Checkpoint();
+                            checkpoint.setRouteId(routeId);
+                            checkpoint.setCpName(name);
+                            checkpoint.setLatitude(Double.parseDouble(latStr));
+                            checkpoint.setLongitude(Double.parseDouble(lngStr));
+                            checkpoint.setSequenceOrder(Integer.parseInt(orderStr));
+                            checkpointDAO.createCheckpoint(checkpoint);
+                        }
+                    }
+                } catch (Exception e) {
+                    System.out.println("Error creating checkpoints: " + e.getMessage());
+                    e.printStackTrace();
+                    // Continue even if checkpoint creation fails
+                }
+            }
+            
+            response.sendRedirect(request.getContextPath() + "/organizer/routes?eventId=" + eventId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Error creating route: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/organizer/events");
+        }
+    }
+    
+    private void updateRoute(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            String routeIdStr = request.getParameter("routeId");
+            if (routeIdStr == null || routeIdStr.isEmpty()) {
+                response.sendRedirect(request.getContextPath() + "/organizer/events");
+                return;
+            }
+            
+            int routeId = Integer.parseInt(routeIdStr);
+            models.Route route = routeDAO.getRouteById(routeId);
+            if (route == null) {
+                response.sendRedirect(request.getContextPath() + "/organizer/events");
+                return;
+            }
+            
+            String distanceKmStr = request.getParameter("distanceKm");
+            String description = request.getParameter("description");
+            String startLatStr = request.getParameter("startLat");
+            String startLngStr = request.getParameter("startLng");
+            String endLatStr = request.getParameter("endLat");
+            String endLngStr = request.getParameter("endLng");
+            
+            // Get checkpoints from form array parameters
+            String[] checkpointNames = request.getParameterValues("checkpointName[]");
+            String[] checkpointLats = request.getParameterValues("checkpointLat[]");
+            String[] checkpointLngs = request.getParameterValues("checkpointLng[]");
+            String[] checkpointOrders = request.getParameterValues("checkpointOrder[]");
+            
+            double distanceKm = distanceKmStr != null && !distanceKmStr.isEmpty() ? Double.parseDouble(distanceKmStr) : route.getDistanceKm();
+            
+            route.setDistanceKm(distanceKm);
+            route.setDescription(description);
+            
+            routeDAO.updateRoute(route);
+            
+            // uupdate coordinates 
+            if (startLatStr != null && !startLatStr.isEmpty() && startLngStr != null && !startLngStr.isEmpty() &&
+                endLatStr != null && !endLatStr.isEmpty() && endLngStr != null && !endLngStr.isEmpty()) {
+                Double startLat = Double.parseDouble(startLatStr);
+                Double startLng = Double.parseDouble(startLngStr);
+                Double endLat = Double.parseDouble(endLatStr);
+                Double endLng = Double.parseDouble(endLngStr);
+                routeDAO.updateRouteCoordinates(routeId, startLat, startLng, endLat, endLng);
+            }
+            
+            // update checkpoints
+            if (checkpointNames != null && checkpointNames.length > 0 &&
+                checkpointLats != null && checkpointLats.length == checkpointNames.length &&
+                checkpointLngs != null && checkpointLngs.length == checkpointNames.length &&
+                checkpointOrders != null && checkpointOrders.length == checkpointNames.length) {
+                try {
+                    //delete old
+                    List<models.Checkpoint> existingCheckpoints = checkpointDAO.getCheckpointsByRoute(routeId);
+                    for (models.Checkpoint cp : existingCheckpoints) {
+                        checkpointDAO.deleteCheckpoint(cp.getCpId());
+                    }
+                    
+                    // create new checkpoints
+                    for (int i = 0; i < checkpointNames.length; i++) {
+                        String name = checkpointNames[i];
+                        String latStr = checkpointLats[i];
+                        String lngStr = checkpointLngs[i];
+                        String orderStr = checkpointOrders[i];
+                        
+                        if (name != null && !name.isEmpty() && 
+                            latStr != null && !latStr.isEmpty() &&
+                            lngStr != null && !lngStr.isEmpty() &&
+                            orderStr != null && !orderStr.isEmpty()) {
+                            
+                            models.Checkpoint checkpoint = new models.Checkpoint();
+                            checkpoint.setRouteId(routeId);
+                            checkpoint.setCpName(name);
+                            checkpoint.setLatitude(Double.parseDouble(latStr));
+                            checkpoint.setLongitude(Double.parseDouble(lngStr));
+                            checkpoint.setSequenceOrder(Integer.parseInt(orderStr));
+                            checkpointDAO.createCheckpoint(checkpoint);
+                        }
+                    }
+                } catch (Exception e) {
+                    System.out.println("Error updating checkpoints: " + e.getMessage());
+                    e.printStackTrace();
+                    // Continue even if checkpoint update fails
+                }
+            }
+            
+            response.sendRedirect(request.getContextPath() + "/organizer/routes?eventId=" + route.getEventId());
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Error updating route: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/organizer/events");
+        }
+    }
+    
+    private void deleteRoute(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            String routeIdStr = request.getParameter("id");
+            if (routeIdStr == null || routeIdStr.isEmpty()) {
+                response.sendRedirect(request.getContextPath() + "/organizer/events");
+                return;
+            }
+            int routeId = Integer.parseInt(routeIdStr);
+            models.Route route = routeDAO.getRouteById(routeId);
+            if (route == null) {
+                response.sendRedirect(request.getContextPath() + "/organizer/events");
+                return;
+            }
+            
+            int eventId = route.getEventId();
+            boolean deleted = routeDAO.deleteRoute(routeId);
+            
+            if (deleted) {
+                response.sendRedirect(request.getContextPath() + "/organizer/routes?eventId=" + eventId);
+            } else {
+                request.setAttribute("error", "Failed to delete route. Please try again.");
+                response.sendRedirect(request.getContextPath() + "/organizer/routes?eventId=" + eventId);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            String eventIdStr = request.getParameter("eventId");
+            if (eventIdStr != null && !eventIdStr.isEmpty()) {
+                response.sendRedirect(request.getContextPath() + "/organizer/routes?eventId=" + eventIdStr);
+            } else {
+                response.sendRedirect(request.getContextPath() + "/organizer/events");
+            }
+        }
+    }
+    
+    // Checkpoint Management Methods
+    private void showCheckpointsList(HttpServletRequest request, HttpServletResponse response, String routeIdStr)
+            throws ServletException, IOException {
+        try {
+            if (routeIdStr == null || routeIdStr.isEmpty()) {
+                response.sendRedirect(request.getContextPath() + "/organizer/events");
+                return;
+            }
+            int routeId = Integer.parseInt(routeIdStr);
+            models.Route route = routeDAO.getRouteById(routeId);
+            if (route == null) {
+                response.sendRedirect(request.getContextPath() + "/organizer/events");
+                return;
+            }
+            Event event = eventDAO.getEventById(route.getEventId());
+            List<models.Checkpoint> checkpoints = checkpointDAO.getCheckpointsByRoute(routeId);
+            request.setAttribute("route", route);
+            request.setAttribute("event", event);
+            request.setAttribute("checkpoints", checkpoints);
+            request.getRequestDispatcher(ORGANIZER_CHECKPOINTS_JSP).forward(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    private void showCheckpointForm(HttpServletRequest request, HttpServletResponse response, String cpIdStr, String routeIdStr)
+            throws ServletException, IOException {
+        try {
+            models.Checkpoint checkpoint = null;
+            models.Route route = null;
+            
+            if (cpIdStr != null && !cpIdStr.isEmpty()) {
+                int cpId = Integer.parseInt(cpIdStr);
+                checkpoint = checkpointDAO.getCheckpointById(cpId);
+                if (checkpoint != null) {
+                    route = routeDAO.getRouteById(checkpoint.getRouteId());
+                }
+            } else if (routeIdStr != null && !routeIdStr.isEmpty()) {
+                int rtId = Integer.parseInt(routeIdStr);
+                route = routeDAO.getRouteById(rtId);
+            }
+            
+            if (route == null) {
+                response.sendRedirect(request.getContextPath() + "/organizer/events");
+                return;
+            }
+            
+            request.setAttribute("checkpoint", checkpoint);
+            request.setAttribute("route", route);
+            request.getRequestDispatcher(ORGANIZER_CHECKPOINT_FORM_JSP).forward(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    private void createCheckpoint(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            String routeIdStr = request.getParameter("routeId");
+            String cpName = request.getParameter("cpName");
+            String latitudeStr = request.getParameter("latitude");
+            String longitudeStr = request.getParameter("longitude");
+            
+            if (routeIdStr == null || routeIdStr.isEmpty()) {
+                request.setAttribute("error", "Route ID is required!");
+                response.sendRedirect(request.getContextPath() + "/organizer/events");
+                return;
+            }
+            
+            int routeId = Integer.parseInt(routeIdStr);
+            int sequenceOrder = checkpointDAO.getNextSequenceOrder(routeId);
+            
+            models.Checkpoint checkpoint = new models.Checkpoint();
+            checkpoint.setRouteId(routeId);
+            checkpoint.setCpName(cpName);
+            checkpoint.setSequenceOrder(sequenceOrder);
+            
+            if (latitudeStr != null && !latitudeStr.isEmpty() && longitudeStr != null && !longitudeStr.isEmpty()) {
+                checkpoint.setLatitude(Double.parseDouble(latitudeStr));
+                checkpoint.setLongitude(Double.parseDouble(longitudeStr));
+            }
+            
+            checkpointDAO.createCheckpoint(checkpoint);
+            response.sendRedirect(request.getContextPath() + "/organizer/checkpoints?routeId=" + routeId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Error creating checkpoint: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/organizer/events");
+        }
+    }
+    
+    private void updateCheckpoint(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            String cpIdStr = request.getParameter("cpId");
+            if (cpIdStr == null || cpIdStr.isEmpty()) {
+                response.sendRedirect(request.getContextPath() + "/organizer/events");
+                return;
+            }
+            
+            int cpId = Integer.parseInt(cpIdStr);
+            models.Checkpoint checkpoint = checkpointDAO.getCheckpointById(cpId);
+            if (checkpoint == null) {
+                response.sendRedirect(request.getContextPath() + "/organizer/events");
+                return;
+            }
+            
+            String cpName = request.getParameter("cpName");
+            String sequenceOrderStr = request.getParameter("sequenceOrder");
+            String latitudeStr = request.getParameter("latitude");
+            String longitudeStr = request.getParameter("longitude");
+            
+            checkpoint.setCpName(cpName);
+            if (sequenceOrderStr != null && !sequenceOrderStr.isEmpty()) {
+                checkpoint.setSequenceOrder(Integer.parseInt(sequenceOrderStr));
+            }
+            
+            if (latitudeStr != null && !latitudeStr.isEmpty() && longitudeStr != null && !longitudeStr.isEmpty()) {
+                checkpoint.setLatitude(Double.parseDouble(latitudeStr));
+                checkpoint.setLongitude(Double.parseDouble(longitudeStr));
+            }
+            
+            checkpointDAO.updateCheckpoint(checkpoint);
+            response.sendRedirect(request.getContextPath() + "/organizer/checkpoints?routeId=" + checkpoint.getRouteId());
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Error updating checkpoint: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/organizer/events");
+        }
+    }
+    
+    private void deleteCheckpoint(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        try {
+            String cpIdStr = request.getParameter("id");
+            if (cpIdStr == null || cpIdStr.isEmpty()) {
+                response.sendRedirect(request.getContextPath() + "/organizer/events");
+                return;
+            }
+            int cpId = Integer.parseInt(cpIdStr);
+            models.Checkpoint checkpoint = checkpointDAO.getCheckpointById(cpId);
+            if (checkpoint != null) {
+                int routeId = checkpoint.getRouteId();
+                checkpointDAO.deleteCheckpoint(cpId);
+                checkpointDAO.reorderCheckpoints(routeId);
+                response.sendRedirect(request.getContextPath() + "/organizer/checkpoints?routeId=" + routeId);
+            } else {
+                response.sendRedirect(request.getContextPath() + "/organizer/events");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
             response.sendRedirect(request.getContextPath() + "/organizer/events");
         }
     }
