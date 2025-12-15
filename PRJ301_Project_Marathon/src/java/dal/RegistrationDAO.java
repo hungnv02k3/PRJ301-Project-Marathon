@@ -151,21 +151,15 @@ public class RegistrationDAO extends DBContext {
             String getEventSql = "SELECT name FROM Events WHERE event_id = ?";
             PreparedStatement getEventStm = connection.prepareStatement(getEventSql);
             getEventStm.setInt(1, eventId);
-            ResultSet eventRs = getEventStm.executeQuery();
+            ResultSet rs = getEventStm.executeQuery();
             
             String prefix = "EVT";
-            if (eventRs.next()) {
-                String eventName = eventRs.getString("name");
-                if (eventName.contains("Hanoi")) {
-                    prefix = "HM";
-                } else if (eventName.contains("Saigon")) {
-                    prefix = "SGN";
-                } else {
-                    prefix = eventName.replaceAll("[^A-Z]", "").substring(0, Math.min(3, eventName.replaceAll("[^A-Z]", "").length()));
-                }
+            if (rs.next()) {
+                String eventName = rs.getString("name");                
+                prefix = eventName.replaceAll("[^A-Z]", "").substring(0, Math.min(3, eventName.replaceAll("[^A-Z]", "").length()));                
             }
             
-            // Generate random number and check uniqueness
+            // Generate random number and check unique
             String bibNumber;
             int attempts = 0;
             do {
@@ -182,7 +176,6 @@ public class RegistrationDAO extends DBContext {
             return bibNumber;
         } catch (Exception e) {
             System.out.println(e);
-            // Fallback
             return "EVT" + (1000 + (int)(Math.random() * 9000));
         }
     }

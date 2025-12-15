@@ -93,35 +93,50 @@
                                             </c:otherwise>
                                         </c:choose>
                                     </td>
-                                    <td>
+                                    <td style="white-space: nowrap;">
                                         <c:choose>
                                             <c:when test="${event.hasStarted()}">
                                                 <!-- Event has started - show result entry only for approved registrations -->
                                                 <c:if test="${reg.status == 'Registered'}">
-                                                    <a href="${pageContext.request.contextPath}/organizer/registrations/result?registrationId=${reg.registrationId}&eventId=${event.eventId}" class="btn btn-sm btn-primary"><i class="fa fa-clock-o"></i> Enter Result</a>
+                                                    <a href="${pageContext.request.contextPath}/organizer/registrations/result?registrationId=${reg.registrationId}&eventId=${event.eventId}"
+                                                       class="btn btn-sm btn-primary"
+                                                       style="margin: 0 !important; margin-right: 5px;">
+                                                        <i class="fa fa-clock-o"></i> Enter Result
+                                                    </a>
                                                 </c:if>
                                             </c:when>
                                             <c:otherwise>
                                                 <!-- Event not started - show approve/reject and assign bib -->
                                                 <c:if test="${reg.status != 'Registered'}">
-                                                    <form method="post" action="${pageContext.request.contextPath}/organizer/registrations/approve" style="display:inline;">
+                                                    <form method="post" action="${pageContext.request.contextPath}/organizer/registrations/approve"
+                                                          style="display: inline-block; margin-right: 5px; vertical-align: middle; margin-top: 0; margin-bottom: 0;">
                                                         <input type="hidden" name="registrationId" value="${reg.registrationId}">
                                                         <input type="hidden" name="eventId" value="${event.eventId}">
-                                                        <button type="submit" class="btn btn-sm btn-success"><i class="fa fa-check"></i> Approve</button>
+                                                        <button type="submit" class="btn btn-sm btn-success" style="margin: 0 !important;">
+                                                            <i class="fa fa-check"></i> Approve
+                                                        </button>
                                                     </form>
                                                 </c:if>
                                                 <c:if test="${reg.status != 'Rejected'}">
-                                                    <form method="post" action="${pageContext.request.contextPath}/organizer/registrations/reject" style="display:inline;">
+                                                    <form method="post" action="${pageContext.request.contextPath}/organizer/registrations/reject"
+                                                          style="display: inline-block; margin-right: 5px; vertical-align: middle; margin-top: 0; margin-bottom: 0;">
                                                         <input type="hidden" name="registrationId" value="${reg.registrationId}">
                                                         <input type="hidden" name="eventId" value="${event.eventId}">
-                                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to reject this registration?')"><i class="fa fa-times"></i> Reject</button>
+                                                        <button type="submit" class="btn btn-sm btn-danger"
+                                                                onclick="return confirm('Are you sure you want to reject this registration?')"
+                                                                style="margin: 0 !important;">
+                                                            <i class="fa fa-times"></i> Reject
+                                                        </button>
                                                     </form>
                                                 </c:if>
                                                 <c:if test="${empty reg.bibNumber && reg.status == 'Registered'}">
-                                                    <form method="post" action="${pageContext.request.contextPath}/organizer/registrations/assign-bib" style="display:inline;">
+                                                    <form method="post" action="${pageContext.request.contextPath}/organizer/registrations/assign-bib"
+                                                          style="display: inline-block; margin-right: 5px; vertical-align: middle; margin-top: 0; margin-bottom: 0;">
                                                         <input type="hidden" name="registrationId" value="${reg.registrationId}">
                                                         <input type="hidden" name="eventId" value="${event.eventId}">
-                                                        <button type="submit" class="btn btn-sm btn-info"><i class="fa fa-tag"></i> Assign Bib</button>
+                                                        <button type="submit" class="btn btn-sm btn-info" style="margin: 0 !important;">
+                                                            <i class="fa fa-tag"></i> Assign Bib
+                                                        </button>
                                                     </form>
                                                 </c:if>
                                             </c:otherwise>

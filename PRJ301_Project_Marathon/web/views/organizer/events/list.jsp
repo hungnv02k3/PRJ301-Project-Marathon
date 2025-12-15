@@ -20,7 +20,7 @@
         
         <div class="row">
             <div class="col-sm-12">
-                <a href="${pageContext.request.contextPath}/organizer/dashboard" class="btn btn-default"><i class="fa fa-arrow-left"></i> Back to Dashboard</a>
+                <a href="${pageContext.request.contextPath}/organizer/dashboard" class="btn btn-primary" style="margin-right: 10px;"><i class="fa fa-arrow-left"></i> Back to Dashboard</a>
                 <a href="${pageContext.request.contextPath}/organizer/events/add" class="btn btn-primary"><i class="fa fa-plus"></i> Create New Event</a>
             </div>
         </div>
@@ -57,31 +57,49 @@
                                             <c:when test="${event.status == 'Open'}">
                                                 <span class="label label-success">${event.status}</span>
                                             </c:when>
+                                            <c:when test="${event.status == 'PAUSE'}">
+                                                <span class="label label-warning">${event.status}</span>
+                                            </c:when>
                                             <c:otherwise>
                                                 <span class="label label-danger">${event.status}</span>
                                             </c:otherwise>
                                         </c:choose>
                                     </td>
-                                    <td>
+                                    <td style="white-space: nowrap;">
                                         <c:choose>
                                             <c:when test="${event.hasStarted()}">
-                                                <span class="text-muted"><i class="fa fa-info-circle"></i> Started</span>
+                                                <span class="text-muted" style="display: inline-block; margin-right: 5px; vertical-align: middle;"><i class="fa fa-info-circle"></i> Started</span>
+                                            </c:when>
+                                            <c:when test="${event.status == 'Closed'}">
+                                                <span class="text-muted" style="display: inline-block; margin-right: 5px; vertical-align: middle;"><i class="fa fa-lock"></i> Closed</span>
                                             </c:when>
                                             <c:otherwise>
-                                                <a href="${pageContext.request.contextPath}/organizer/events/edit?id=${event.eventId}" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
-                                                <form method="post" action="${pageContext.request.contextPath}/organizer/events/delete" style="display:inline;">
-                                                    <input type="hidden" name="eventId" value="${event.eventId}">
-                                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this event?')"><i class="fa fa-trash"></i> Delete</button>
+                                                <form method="get" action="${pageContext.request.contextPath}/organizer/events/edit" style="display: inline-block; margin-right: 5px; vertical-align: middle; margin-top: 0; margin-bottom: 0;">
+                                                    <input type="hidden" name="id" value="${event.eventId}">
+                                                    <button type="submit" class="btn btn-sm btn-primary" style="margin: 0 !important;"><i class="fa fa-edit"></i> Edit</button>
                                                 </form>
+                                                <c:if test="${event.status != 'PAUSE'}">
+                                                    <form method="post" action="${pageContext.request.contextPath}/organizer/events/pause" style="display: inline-block; margin-right: 5px; vertical-align: middle; margin-top: 0; margin-bottom: 0;">
+                                                        <input type="hidden" name="eventId" value="${event.eventId}">
+                                                        <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Are you sure you want to pause this event?')" style="margin: 0 !important;"><i class="fa fa-pause"></i> Pause</button>
+                                                    </form>
+                                                </c:if>
                                             </c:otherwise>
                                         </c:choose>
                                         <c:if test="${event.status != 'Closed'}">
-                                            <form method="post" action="${pageContext.request.contextPath}/organizer/events/close" style="display:inline;">
+                                            <form method="post" action="${pageContext.request.contextPath}/organizer/events/close" style="display: inline-block; margin-right: 5px; vertical-align: middle; margin-top: 0; margin-bottom: 0;">
                                                 <input type="hidden" name="eventId" value="${event.eventId}">
-                                                <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Are you sure you want to close this event?')"><i class="fa fa-lock"></i> Close</button>
+                                                <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Are you sure you want to close this event?')" style="margin: 0 !important;"><i class="fa fa-lock"></i> Close</button>
                                             </form>
                                         </c:if>
-                                        <a href="${pageContext.request.contextPath}/organizer/registrations?eventId=${event.eventId}" class="btn btn-sm btn-info"><i class="fa fa-users"></i> Registrations</a>
+                                        <form method="get" action="${pageContext.request.contextPath}/organizer/registrations" style="display: inline-block; margin-right: 5px; vertical-align: middle; margin-top: 0; margin-bottom: 0;">
+                                            <input type="hidden" name="eventId" value="${event.eventId}">
+                                            <button type="submit" class="btn btn-sm btn-info" style="margin: 0 !important;"></i> Registrations</button>
+                                        </form>
+                                        <form method="get" action="${pageContext.request.contextPath}/organizer/routes" style="display: inline-block; vertical-align: middle; margin-top: 0; margin-bottom: 0;">
+                                            <input type="hidden" name="eventId" value="${event.eventId}">
+                                            <button type="submit" class="btn btn-sm btn-success" style="margin: 0 !important;"><i class="fa fa-map"></i> Routes</button>
+                                        </form>
                                     </td>
                                 </tr>
                             </c:forEach>

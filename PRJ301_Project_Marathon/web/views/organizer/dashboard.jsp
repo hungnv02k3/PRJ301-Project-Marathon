@@ -37,8 +37,8 @@
         
         <div class="row">
             <div class="col-sm-12">
-                <a href="${pageContext.request.contextPath}/organizer/events/add" class="btn btn-primary"><i class="fa fa-plus"></i> Create New Event</a>
-                <a href="${pageContext.request.contextPath}/organizer/events" class="btn btn-default"><i class="fa fa-list"></i> View All Events</a>
+                <a href="${pageContext.request.contextPath}/organizer/events/add" class="btn btn-primary" style="margin-right: 10px;"><i class="fa fa-plus"></i> Create New Event</a>
+                <a href="${pageContext.request.contextPath}/organizer/events" class="btn btn-primary"><i class="fa fa-list"></i> View All Events</a>
             </div>
         </div>
         
@@ -76,9 +76,9 @@
                                             </c:otherwise>
                                         </c:choose>
                                     </td>
-                                    <td>
-                                        <a href="${pageContext.request.contextPath}/organizer/events/edit?id=${event.eventId}" class="btn btn-sm btn-primary"><i class="fa fa-edit"></i> Edit</a>
-                                        <a href="${pageContext.request.contextPath}/organizer/registrations?eventId=${event.eventId}" class="btn btn-sm btn-info"><i class="fa fa-users"></i> Registrations</a>
+                                    <td style="white-space: nowrap;">
+                                        <a href="${pageContext.request.contextPath}/organizer/events/edit?id=${event.eventId}" class="btn btn-sm btn-primary" style="margin: 0 !important; margin-right: 5px;"><i class="fa fa-edit"></i> Edit</a>
+                                        <a href="${pageContext.request.contextPath}/organizer/registrations?eventId=${event.eventId}" class="btn btn-sm btn-info" style="margin: 0 !important;"><i class="fa fa-users"></i> Registrations</a>
                                     </td>
                                 </tr>
                             </c:forEach>

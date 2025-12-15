@@ -30,24 +30,8 @@ public class EventDAO extends DBContext {
                 String name = rs.getString("name");
                 String description = rs.getString("description");
                 Date eventDate = rs.getDate("event_date");
-                // Try to get event_start_time, if not exists, use event_date
-                Timestamp eventStartTime = null;
-                try {
-                    java.sql.ResultSetMetaData metaData = rs.getMetaData();
-                    int columnCount = metaData.getColumnCount();
-                    boolean hasEventStartTime = false;
-                    for (int i = 1; i <= columnCount; i++) {
-                        if ("event_start_time".equalsIgnoreCase(metaData.getColumnName(i))) {
-                            hasEventStartTime = true;
-                            break;
-                        }
-                    }
-                    if (hasEventStartTime) {
-                        eventStartTime = rs.getTimestamp("event_start_time");
-                    }
-                } catch (Exception e) {
-                    // Column doesn't exist, use event_date
-                }
+                // Get event_start_time, fallback to event_date if null
+                Timestamp eventStartTime = rs.getTimestamp("event_start_time");
                 if (eventStartTime == null && eventDate != null) {
                     eventStartTime = new Timestamp(eventDate.getTime());
                 }
@@ -78,24 +62,8 @@ public class EventDAO extends DBContext {
                 String name = rs.getString("name");
                 String description = rs.getString("description");
                 Date eventDate = rs.getDate("event_date");
-                // Try to get event_start_time, if not exists, use event_date
-                Timestamp eventStartTime = null;
-                try {
-                    java.sql.ResultSetMetaData metaData = rs.getMetaData();
-                    int columnCount = metaData.getColumnCount();
-                    boolean hasEventStartTime = false;
-                    for (int i = 1; i <= columnCount; i++) {
-                        if ("event_start_time".equalsIgnoreCase(metaData.getColumnName(i))) {
-                            hasEventStartTime = true;
-                            break;
-                        }
-                    }
-                    if (hasEventStartTime) {
-                        eventStartTime = rs.getTimestamp("event_start_time");
-                    }
-                } catch (Exception e) {
-                    // Column doesn't exist, use event_date
-                }
+                // Get event_start_time, fallback to event_date if null
+                Timestamp eventStartTime = rs.getTimestamp("event_start_time");
                 if (eventStartTime == null && eventDate != null) {
                     eventStartTime = new Timestamp(eventDate.getTime());
                 }
@@ -114,52 +82,19 @@ public class EventDAO extends DBContext {
     
     public void createEvent(Event event) {
         try {
-            // Try to insert with event_start_time, if column doesn't exist, use event_date only
-            String sqlStatement;
-            if (event.getEventStartTime() != null) {
-                try {
-                    sqlStatement = "INSERT INTO Events (organizer_id, name, description, event_date, event_start_time, location, max_participants, registration_deadline, status) "
-                                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                    stm = connection.prepareStatement(sqlStatement);
-                    stm.setInt(1, event.getOrganizerId());
-                    stm.setString(2, event.getName());
-                    stm.setString(3, event.getDescription());
-                    stm.setDate(4, event.getEventDate());
-                    stm.setTimestamp(5, event.getEventStartTime());
-                    stm.setString(6, event.getLocation());
-                    stm.setInt(7, event.getMaxParticipants());
-                    stm.setDate(8, event.getRegistrationDeadline());
-                    stm.setString(9, event.getStatus());
-                    stm.executeUpdate();
-                } catch (Exception e) {
-                    // Column doesn't exist, use event_date only
-                    sqlStatement = "INSERT INTO Events (organizer_id, name, description, event_date, location, max_participants, registration_deadline, status) "
-                                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-                    stm = connection.prepareStatement(sqlStatement);
-                    stm.setInt(1, event.getOrganizerId());
-                    stm.setString(2, event.getName());
-                    stm.setString(3, event.getDescription());
-                    stm.setDate(4, event.getEventDate());
-                    stm.setString(5, event.getLocation());
-                    stm.setInt(6, event.getMaxParticipants());
-                    stm.setDate(7, event.getRegistrationDeadline());
-                    stm.setString(8, event.getStatus());
-                    stm.executeUpdate();
-                }
-            } else {
-                sqlStatement = "INSERT INTO Events (organizer_id, name, description, event_date, location, max_participants, registration_deadline, status) "
-                             + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-                stm = connection.prepareStatement(sqlStatement);
-                stm.setInt(1, event.getOrganizerId());
-                stm.setString(2, event.getName());
-                stm.setString(3, event.getDescription());
-                stm.setDate(4, event.getEventDate());
-                stm.setString(5, event.getLocation());
-                stm.setInt(6, event.getMaxParticipants());
-                stm.setDate(7, event.getRegistrationDeadline());
-                stm.setString(8, event.getStatus());
-                stm.executeUpdate();
-            }
+            String sqlStatement = "INSERT INTO Events (organizer_id, name, description, event_date, event_start_time, location, max_participants, registration_deadline, status) "
+                             + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            stm = connection.prepareStatement(sqlStatement);
+            stm.setInt(1, event.getOrganizerId());
+            stm.setString(2, event.getName());
+            stm.setString(3, event.getDescription());
+            stm.setDate(4, event.getEventDate());
+            stm.setTimestamp(5, event.getEventStartTime());
+            stm.setString(6, event.getLocation());
+            stm.setInt(7, event.getMaxParticipants());
+            stm.setDate(8, event.getRegistrationDeadline());
+            stm.setString(9, event.getStatus());
+            stm.executeUpdate();
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -167,59 +102,27 @@ public class EventDAO extends DBContext {
     
     public void updateEvent(Event event) {
         try {
-            // Try to update with event_start_time, if column doesn't exist, use event_date only
-            if (event.getEventStartTime() != null) {
-                try {
-                    String sqlStatement = "UPDATE Events SET name = ?, description = ?, event_date = ?, event_start_time = ?, location = ?, "
-                                       + "max_participants = ?, registration_deadline = ?, status = ? WHERE event_id = ?";
-                    stm = connection.prepareStatement(sqlStatement);
-                    stm.setString(1, event.getName());
-                    stm.setString(2, event.getDescription());
-                    stm.setDate(3, event.getEventDate());
-                    stm.setTimestamp(4, event.getEventStartTime());
-                    stm.setString(5, event.getLocation());
-                    stm.setInt(6, event.getMaxParticipants());
-                    stm.setDate(7, event.getRegistrationDeadline());
-                    stm.setString(8, event.getStatus());
-                    stm.setInt(9, event.getEventId());
-                    stm.executeUpdate();
-                } catch (Exception e) {
-                    // Column doesn't exist, use event_date only
-                    String sqlStatement = "UPDATE Events SET name = ?, description = ?, event_date = ?, location = ?, "
-                                       + "max_participants = ?, registration_deadline = ?, status = ? WHERE event_id = ?";
-                    stm = connection.prepareStatement(sqlStatement);
-                    stm.setString(1, event.getName());
-                    stm.setString(2, event.getDescription());
-                    stm.setDate(3, event.getEventDate());
-                    stm.setString(4, event.getLocation());
-                    stm.setInt(5, event.getMaxParticipants());
-                    stm.setDate(6, event.getRegistrationDeadline());
-                    stm.setString(7, event.getStatus());
-                    stm.setInt(8, event.getEventId());
-                    stm.executeUpdate();
-                }
-            } else {
-                String sqlStatement = "UPDATE Events SET name = ?, description = ?, event_date = ?, location = ?, "
-                                   + "max_participants = ?, registration_deadline = ?, status = ? WHERE event_id = ?";
-                stm = connection.prepareStatement(sqlStatement);
-                stm.setString(1, event.getName());
-                stm.setString(2, event.getDescription());
-                stm.setDate(3, event.getEventDate());
-                stm.setString(4, event.getLocation());
-                stm.setInt(5, event.getMaxParticipants());
-                stm.setDate(6, event.getRegistrationDeadline());
-                stm.setString(7, event.getStatus());
-                stm.setInt(8, event.getEventId());
-                stm.executeUpdate();
-            }
+            String sqlStatement = "UPDATE Events SET name = ?, description = ?, event_date = ?, event_start_time = ?, location = ?, "
+                               + "max_participants = ?, registration_deadline = ?, status = ? WHERE event_id = ?";
+            stm = connection.prepareStatement(sqlStatement);
+            stm.setString(1, event.getName());
+            stm.setString(2, event.getDescription());
+            stm.setDate(3, event.getEventDate());
+            stm.setTimestamp(4, event.getEventStartTime());
+            stm.setString(5, event.getLocation());
+            stm.setInt(6, event.getMaxParticipants());
+            stm.setDate(7, event.getRegistrationDeadline());
+            stm.setString(8, event.getStatus());
+            stm.setInt(9, event.getEventId());
+            stm.executeUpdate();
         } catch (Exception e) {
             System.out.println(e);
         }
     }
     
-    public void deleteEvent(int eventId) {
+    public void pauseEvent(int eventId) {
         try {
-            String sqlStatement = "DELETE FROM Events WHERE event_id = ?";
+            String sqlStatement = "UPDATE Events SET status = 'PAUSE' WHERE event_id = ?";
             stm = connection.prepareStatement(sqlStatement);
             stm.setInt(1, eventId);
             stm.executeUpdate();

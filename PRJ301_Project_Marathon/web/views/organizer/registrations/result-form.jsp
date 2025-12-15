@@ -67,7 +67,6 @@
                                         </c:otherwise>
                                     </c:choose>
                                 </p>
-                                <small class="help-block">All runners start at the same time</small>
                             </div>
                             
                             <div class="form-group">
@@ -76,7 +75,6 @@
                                        <c:if test="${result != null && result.finishTime != null}">
                                        value="<fmt:formatDate value="${result.finishTime}" pattern="yyyy-MM-dd'T'HH:mm:ss" />"
                                        </c:if> required>
-                                <small class="help-block">Format: YYYY-MM-DDTHH:MM:SS (select down to seconds)</small>
                             </div>
                             
                             <c:if test="${result != null && result.netTime != null}">
