@@ -34,13 +34,13 @@ public class SignUpController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("account") == null) {
+        HttpSession session = request.getSession();
+        Account account = (Account) session.getAttribute("account");
+        if (account == null) {
             response.sendRedirect("login");
-            return;
+        } else {
+            request.getRequestDispatcher("views/signup.jsp").forward(request, response);
         }
-
-        request.getRequestDispatcher("views/signup.jsp").forward(request, response);
     }
 
     @Override

@@ -45,11 +45,11 @@
                                 <c:when test="${not empty sessionScope.account}">
                                     <li>
                                         <a href="#"><i class="fa fa-user"></i>
-                                            ${sessionScope.account.username}
+                                            ${sessionScope.account.getUserName()}
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="logout">
+                                        <a href="#" onclick="openLogoutModal()">
                                             <i class="fa fa-sign-out"></i> Logout
                                         </a>
                                     </li>
@@ -65,4 +65,44 @@
             </div>
         </div>
     </div>
+    <div id="logoutModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>Confirm Logout</h3>
+            <p>Are you sure you want to logout?</p>
+
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeLogoutModal()">Cancel</button>
+                <button class="btn-logout" onclick="doLogout()">Logout</button>
+            </div>
+        </div>
+    </div>
 </header>
+<!-- Logout Modal -->
+
+<script type="text/javascript">
+    function openLogoutModal() {
+        var modal = document.getElementById("logoutModal");
+        if (modal) {
+            modal.style.display = "flex";
+        }
+    }
+
+    function closeLogoutModal() {
+        var modal = document.getElementById("logoutModal");
+        if (modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    function doLogout() {
+        window.location.href = "${pageContext.request.contextPath}/logout";
+    }
+
+    window.onclick = function (event) {
+        var modal = document.getElementById("logoutModal");
+        if (event.target === modal) {
+            closeLogoutModal();
+        }
+    };
+</script>
+
