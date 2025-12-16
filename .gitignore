@@ -2,11 +2,11 @@
 /PRJ301_Project_Marathon/build/
 /PRJ301_Project_Marathon/dist/
 
-# NetBeans project files (should not be tracked)
-/PRJ301_Project_Marathon/nbproject/
-nbproject/
-**/nbproject/
+# NetBeans project files
+# Commit: project.xml, project.properties (essential for opening project)
+# Ignore: auto-generated files and personal settings
+/PRJ301_Project_Marathon/nbproject/build-impl.xml
+/PRJ301_Project_Marathon/nbproject/genfiles.properties
+/PRJ301_Project_Marathon/nbproject/ant-deploy.xml
+/PRJ301_Project_Marathon/nbproject/private/
 
-# Sensitive configuration
-PRJ301_Project_Marathon/web/WEB-INF/ConnectDB.properties
-**/ConnectDB.properties
