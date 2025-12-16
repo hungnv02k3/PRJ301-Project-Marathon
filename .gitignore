@@ -3,9 +3,8 @@
 /PRJ301_Project_Marathon/dist/
 
 # NetBeans project files
-# Commit: project.xml, project.properties (essential for opening project)
+# Commit: project.xml, project.properties, build-impl.xml (essential for build.xml)
 # Ignore: auto-generated files and personal settings
-/PRJ301_Project_Marathon/nbproject/build-impl.xml
 /PRJ301_Project_Marathon/nbproject/genfiles.properties
 /PRJ301_Project_Marathon/nbproject/ant-deploy.xml
 /PRJ301_Project_Marathon/nbproject/private/
