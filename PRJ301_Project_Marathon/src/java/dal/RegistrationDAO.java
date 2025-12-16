@@ -19,7 +19,7 @@ public class RegistrationDAO extends DBContext {
         List<Registration> list = new ArrayList<>();
         try {
             String sqlStatement = "SELECT r.*, ru.full_name as runner_name, ru.email as runner_email, "
-                               + "ru.phone as runner_phone, e.name as event_name "
+                               + "ru.phone as runner_phone, e.event_name as event_name "
                                + "FROM Registrations r "
                                + "INNER JOIN Runners ru ON r.runner_id = ru.runner_id "
                                + "INNER JOIN Events e ON r.event_id = e.event_id "
@@ -52,7 +52,7 @@ public class RegistrationDAO extends DBContext {
         Registration registration = null;
         try {
             String sqlStatement = "SELECT r.*, ru.full_name as runner_name, ru.email as runner_email, "
-                               + "ru.phone as runner_phone, e.name as event_name "
+                               + "ru.phone as runner_phone, e.event_name as event_name "
                                + "FROM Registrations r "
                                + "INNER JOIN Runners ru ON r.runner_id = ru.runner_id "
                                + "INNER JOIN Events e ON r.event_id = e.event_id "
@@ -148,14 +148,14 @@ public class RegistrationDAO extends DBContext {
     
     public String generateUniqueBibNumber(int eventId) {
         try {
-            String getEventSql = "SELECT name FROM Events WHERE event_id = ?";
+            String getEventSql = "SELECT event_name FROM Events WHERE event_id = ?";
             PreparedStatement getEventStm = connection.prepareStatement(getEventSql);
             getEventStm.setInt(1, eventId);
             ResultSet rs = getEventStm.executeQuery();
             
             String prefix = "EVT";
             if (rs.next()) {
-                String eventName = rs.getString("name");                
+                String eventName = rs.getString("event_name");                
                 prefix = eventName.replaceAll("[^A-Z]", "").substring(0, Math.min(3, eventName.replaceAll("[^A-Z]", "").length()));                
             }
             

@@ -27,8 +27,8 @@ public class EventDAO extends DBContext {
             while (rs.next()) {
                 int eventId = rs.getInt("event_id");
                 int orgId = rs.getInt("organizer_id");
-                String name = rs.getString("name");
-                String description = rs.getString("description");
+                String name = rs.getString("event_name");
+                String description = ""; // Description column doesn't exist in new DB schema
                 Date eventDate = rs.getDate("event_date");
                 // Get event_start_time, fallback to event_date if null
                 Timestamp eventStartTime = rs.getTimestamp("event_start_time");
@@ -59,8 +59,8 @@ public class EventDAO extends DBContext {
             while (rs.next()) {
                 int id = rs.getInt("event_id");
                 int organizerId = rs.getInt("organizer_id");
-                String name = rs.getString("name");
-                String description = rs.getString("description");
+                String name = rs.getString("event_name");
+                String description = ""; // Description column doesn't exist in new DB schema
                 Date eventDate = rs.getDate("event_date");
                 // Get event_start_time, fallback to event_date if null
                 Timestamp eventStartTime = rs.getTimestamp("event_start_time");
@@ -82,18 +82,17 @@ public class EventDAO extends DBContext {
     
     public void createEvent(Event event) {
         try {
-            String sqlStatement = "INSERT INTO Events (organizer_id, name, description, event_date, event_start_time, location, max_participants, registration_deadline, status) "
-                             + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String sqlStatement = "INSERT INTO Events (organizer_id, event_name, event_date, event_start_time, location, max_participants, registration_deadline, status) "
+                             + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             stm = connection.prepareStatement(sqlStatement);
             stm.setInt(1, event.getOrganizerId());
             stm.setString(2, event.getName());
-            stm.setString(3, event.getDescription());
-            stm.setDate(4, event.getEventDate());
-            stm.setTimestamp(5, event.getEventStartTime());
-            stm.setString(6, event.getLocation());
-            stm.setInt(7, event.getMaxParticipants());
-            stm.setDate(8, event.getRegistrationDeadline());
-            stm.setString(9, event.getStatus());
+            stm.setDate(3, event.getEventDate());
+            stm.setTimestamp(4, event.getEventStartTime());
+            stm.setString(5, event.getLocation());
+            stm.setInt(6, event.getMaxParticipants());
+            stm.setDate(7, event.getRegistrationDeadline());
+            stm.setString(8, event.getStatus());
             stm.executeUpdate();
         } catch (Exception e) {
             System.out.println(e);
@@ -102,18 +101,17 @@ public class EventDAO extends DBContext {
     
     public void updateEvent(Event event) {
         try {
-            String sqlStatement = "UPDATE Events SET name = ?, description = ?, event_date = ?, event_start_time = ?, location = ?, "
+            String sqlStatement = "UPDATE Events SET event_name = ?, event_date = ?, event_start_time = ?, location = ?, "
                                + "max_participants = ?, registration_deadline = ?, status = ? WHERE event_id = ?";
             stm = connection.prepareStatement(sqlStatement);
             stm.setString(1, event.getName());
-            stm.setString(2, event.getDescription());
-            stm.setDate(3, event.getEventDate());
-            stm.setTimestamp(4, event.getEventStartTime());
-            stm.setString(5, event.getLocation());
-            stm.setInt(6, event.getMaxParticipants());
-            stm.setDate(7, event.getRegistrationDeadline());
-            stm.setString(8, event.getStatus());
-            stm.setInt(9, event.getEventId());
+            stm.setDate(2, event.getEventDate());
+            stm.setTimestamp(3, event.getEventStartTime());
+            stm.setString(4, event.getLocation());
+            stm.setInt(5, event.getMaxParticipants());
+            stm.setDate(6, event.getRegistrationDeadline());
+            stm.setString(7, event.getStatus());
+            stm.setInt(8, event.getEventId());
             stm.executeUpdate();
         } catch (Exception e) {
             System.out.println(e);

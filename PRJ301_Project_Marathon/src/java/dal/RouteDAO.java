@@ -18,7 +18,7 @@ public class RouteDAO extends DBContext {
     public List<Route> getRoutesByEvent(int eventId) {
         List<Route> list = new ArrayList<>();
         try {
-            String sqlStatement = "SELECT r.*, e.name as event_name, "
+            String sqlStatement = "SELECT r.*, e.event_name as event_name, "
                                 + "(SELECT COUNT(*) FROM Checkpoints WHERE route_id = r.route_id) as checkpoint_count "
                                 + "FROM Routes r "
                                 + "INNER JOIN Events e ON r.event_id = e.event_id "
@@ -46,7 +46,7 @@ public class RouteDAO extends DBContext {
     public Route getRouteById(int routeId) {
         Route route = null;
         try {
-            String sqlStatement = "SELECT r.*, e.name as event_name, "
+            String sqlStatement = "SELECT r.*, e.event_name as event_name, "
                                 + "(SELECT COUNT(*) FROM Checkpoints WHERE route_id = r.route_id) as checkpoint_count "
                                 + "FROM Routes r "
                                 + "INNER JOIN Events e ON r.event_id = e.event_id "

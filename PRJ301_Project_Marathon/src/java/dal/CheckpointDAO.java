@@ -26,10 +26,19 @@ public class CheckpointDAO extends DBContext {
             stm.setInt(1, routeId);
             rs = stm.executeQuery();
             while (rs.next()) {
-                int cpId = rs.getInt("cp_id");
+                int cpId = rs.getInt("checkpoint_id");
                 int rtId = rs.getInt("route_id");
                 String cpName = rs.getString("cp_name");
+                if (cpName == null || cpName.isEmpty()) {
+                    cpName = rs.getString("location");
+                    if (cpName == null) {
+                        cpName = "Checkpoint " + cpId;
+                    }
+                }
                 int sequenceOrder = rs.getInt("sequence_order");
+                if (rs.wasNull()) {
+                    sequenceOrder = 1;
+                }
                 
                 Checkpoint checkpoint = new Checkpoint(cpId, rtId, cpName, sequenceOrder);
                 
@@ -46,7 +55,6 @@ public class CheckpointDAO extends DBContext {
                 list.add(checkpoint);
             }
         } catch (Exception e) {
-            System.out.println(e);
         }
         return list;
     }
@@ -57,15 +65,24 @@ public class CheckpointDAO extends DBContext {
             String sqlStatement = "SELECT c.*, r.description as route_name "
                                 + "FROM Checkpoints c "
                                 + "LEFT JOIN Routes r ON c.route_id = r.route_id "
-                                + "WHERE c.cp_id = ?";
+                                + "WHERE c.checkpoint_id = ?";
             stm = connection.prepareStatement(sqlStatement);
             stm.setInt(1, cpId);
             rs = stm.executeQuery();
             if (rs.next()) {
-                int id = rs.getInt("cp_id");
+                int id = rs.getInt("checkpoint_id");
                 int routeId = rs.getInt("route_id");
                 String cpName = rs.getString("cp_name");
+                if (cpName == null || cpName.isEmpty()) {
+                    cpName = rs.getString("location");
+                    if (cpName == null) {
+                        cpName = "Checkpoint " + id;
+                    }
+                }
                 int sequenceOrder = rs.getInt("sequence_order");
+                if (rs.wasNull()) {
+                    sequenceOrder = 1;
+                }
                 
                 checkpoint = new Checkpoint(id, routeId, cpName, sequenceOrder);
                 
@@ -81,7 +98,6 @@ public class CheckpointDAO extends DBContext {
                 checkpoint.setRouteName(rs.getString("route_name"));
             }
         } catch (Exception e) {
-            System.out.println(e);
         }
         return checkpoint;
     }
@@ -99,14 +115,12 @@ public class CheckpointDAO extends DBContext {
             
             stm.executeUpdate();
         } catch (Exception e) {
-            System.out.println("Error creating checkpoint: " + e.getMessage());
-            e.printStackTrace();
         }
     }
     
     public void updateCheckpoint(Checkpoint checkpoint) {
         try {
-            String sqlStatement = "UPDATE Checkpoints SET cp_name = ?, sequence_order = ?, latitude = ?, longitude = ? WHERE cp_id = ?";
+            String sqlStatement = "UPDATE Checkpoints SET cp_name = ?, sequence_order = ?, latitude = ?, longitude = ? WHERE checkpoint_id = ?";
             stm = connection.prepareStatement(sqlStatement);
             stm.setString(1, checkpoint.getCpName());
             stm.setInt(2, checkpoint.getSequenceOrder());
@@ -116,19 +130,16 @@ public class CheckpointDAO extends DBContext {
             
             stm.executeUpdate();
         } catch (Exception e) {
-            System.out.println("Error updating checkpoint: " + e.getMessage());
-            e.printStackTrace();
         }
     }
     
     public void deleteCheckpoint(int cpId) {
         try {
-            String sqlStatement = "DELETE FROM Checkpoints WHERE cp_id = ?";
+            String sqlStatement = "DELETE FROM Checkpoints WHERE checkpoint_id = ?";
             stm = connection.prepareStatement(sqlStatement);
             stm.setInt(1, cpId);
             stm.executeUpdate();
         } catch (Exception e) {
-            System.out.println(e);
         }
     }
     
@@ -143,7 +154,6 @@ public class CheckpointDAO extends DBContext {
                 nextOrder = rs.getInt("max_order") + 1;
             }
         } catch (Exception e) {
-            System.out.println(e);
         }
         return nextOrder;
     }
@@ -151,7 +161,7 @@ public class CheckpointDAO extends DBContext {
     public void reorderCheckpoints(int routeId) {
         try {
             List<Checkpoint> checkpoints = getCheckpointsByRoute(routeId);
-            String sqlStatement = "UPDATE Checkpoints SET sequence_order = ? WHERE cp_id = ?";
+            String sqlStatement = "UPDATE Checkpoints SET sequence_order = ? WHERE checkpoint_id = ?";
             stm = connection.prepareStatement(sqlStatement);
             
             int order = 1;
@@ -162,7 +172,6 @@ public class CheckpointDAO extends DBContext {
                 order++;
             }
         } catch (Exception e) {
-            System.out.println(e);
         }
     }
 }

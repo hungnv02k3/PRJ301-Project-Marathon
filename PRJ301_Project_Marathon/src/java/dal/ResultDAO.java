@@ -20,7 +20,7 @@ public class ResultDAO extends DBContext {
     public List<Result> getResultsByEvent(int eventId) {
         List<Result> list = new ArrayList<>();
         try {
-            String sqlStatement = "SELECT res.*, r.bib_number, ru.full_name as runner_name, e.name as event_name "
+            String sqlStatement = "SELECT res.*, r.bib_number, ru.full_name as runner_name, e.event_name as event_name "
                                + "FROM Results res "
                                + "INNER JOIN Registrations r ON res.registration_id = r.registration_id "
                                + "INNER JOIN Runners ru ON r.runner_id = ru.runner_id "
@@ -59,7 +59,7 @@ public class ResultDAO extends DBContext {
     public Result getResultByRegistration(int registrationId) {
         Result result = null;
         try {
-            String sqlStatement = "SELECT res.*, r.bib_number, ru.full_name as runner_name, e.name as event_name "
+            String sqlStatement = "SELECT res.*, r.bib_number, ru.full_name as runner_name, e.event_name as event_name "
                                + "FROM Results res "
                                + "INNER JOIN Registrations r ON res.registration_id = r.registration_id "
                                + "INNER JOIN Runners ru ON r.runner_id = ru.runner_id "
