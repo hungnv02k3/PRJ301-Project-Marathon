@@ -4,7 +4,7 @@
  */
 package models;
 
-import java.security.Timestamp;
+import java.sql.Timestamp;
 import java.util.Date;
 
 /**
@@ -14,6 +14,7 @@ import java.util.Date;
 public class Event {
 
     private int eventId;
+    private int organizerId;
     private String eventName;
     private Date eventDate;
     private Timestamp eventStartTime;
@@ -23,8 +24,12 @@ public class Event {
     private String status;
 
     // getters + setters
-    public Event(int eventId, String eventName, Date eventDate, Timestamp eventStartTime, String location, Date registrationDeadline, int maxParticipants, String status) {
+    public Event(int eventId, int organizerId, String eventName,
+            Date eventDate, Timestamp eventStartTime,
+            String location, Date registrationDeadline,
+            int maxParticipants, String status) {
         this.eventId = eventId;
+        this.organizerId = organizerId;
         this.eventName = eventName;
         this.eventDate = eventDate;
         this.eventStartTime = eventStartTime;
@@ -32,6 +37,14 @@ public class Event {
         this.registrationDeadline = registrationDeadline;
         this.maxParticipants = maxParticipants;
         this.status = status;
+    }
+
+    public int getOrganizerId() {
+        return organizerId;
+    }
+
+    public void setOrganizerId(int organizerId) {
+        this.organizerId = organizerId;
     }
 
     public Event() {
