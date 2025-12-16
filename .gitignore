@@ -2,10 +2,29 @@
 /PRJ301_Project_Marathon/build/
 /PRJ301_Project_Marathon/dist/
 
+# Compiled class files
+*.class
+
 # NetBeans project files
-# Commit: project.xml, project.properties, build-impl.xml (essential for build.xml)
-# Ignore: auto-generated files and personal settings
+# IMPORTANT: project.xml, project.properties, build-impl.xml MUST be committed (required by build.xml)
+# Ignore only auto-generated and personal files:
 /PRJ301_Project_Marathon/nbproject/genfiles.properties
 /PRJ301_Project_Marathon/nbproject/ant-deploy.xml
 /PRJ301_Project_Marathon/nbproject/private/
 
+# Log files
+*.log
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*~
+*.swp
+*.swo
+
+# Note: WEB-INF/lib/ should be committed to ensure all team members have the same dependencies
+# If you prefer to ignore it, uncomment the line below and ensure team copies JARs from allowedlib/
+# /PRJ301_Project_Marathon/web/WEB-INF/lib/
