@@ -21,11 +21,9 @@ public class Result {
     private String bibNumber;
     private String runnerName;
     private String eventName;
-    private int netTime;
-    private int rankingOverall;
+
 
     // thêm thông tin hiển thị
-    private String eventName;
     private Date eventDate;
     private String location;
 
@@ -107,17 +105,12 @@ public class Result {
         this.runnerName = runnerName;
     }
 
-    public int getNetTime() {
-        return netTime;
-    }
 
     public void setNetTime(int netTime) {
         this.netTime = netTime;
     }
 
-    public int getRankingOverall() {
-        return rankingOverall;
-    }
+
 
     public void setRankingOverall(int rankingOverall) {
         this.rankingOverall = rankingOverall;
@@ -141,7 +134,7 @@ public class Result {
         int seconds = netTime % 60;
         return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
-}
+
 
     public Date getEventDate() {
         return eventDate;

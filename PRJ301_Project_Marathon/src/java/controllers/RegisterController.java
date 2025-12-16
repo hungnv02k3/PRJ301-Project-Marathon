@@ -4,7 +4,9 @@
  */
 package controllers;
 
+import dal.EventDAO;
 import dal.RegistrationDAO;
+import dal.RunnerDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -14,7 +16,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.sql.Date;
 import models.Account;
+import models.Event;
 import models.Registration;
+import models.Runner;
+import utils.EmailUtil;
 
 /**
  *
@@ -77,6 +82,8 @@ public class RegisterController extends HttpServlet {
         HttpSession session = request.getSession();
         Date today = new Date(System.currentTimeMillis());
         Account account = (Account) session.getAttribute("account");
+        RunnerDAO runnerDAO = new RunnerDAO();
+        EventDAO eventDAO = new EventDAO();
         if (account == null) {
             response.sendRedirect("login");
         } else {
@@ -96,9 +103,19 @@ public class RegisterController extends HttpServlet {
                 session.setAttribute("msg", "Register again successfully!");
 
             } else {
+                Runner runner = runnerDAO.getRunnerByAccountId(account.getAccountId());
+                Event event = eventDAO.getEventById(eventId);
+
+                EmailUtil.sendRegistrationMail(
+                        runner.getEmail(),
+                        runner.getFullName(),
+                        event.getEventName(),
+                        event.getEventDate().toString(),
+                        event.getLocation()
+                );
                 // chưa từng đăng ký → INSERT
                 Registration reg
-                        = new Registration(eventId, runnerId, today, "", "Registered");
+                        = new Registration(eventId, runnerId, runnerId, today, "", "Registered");
                 dao.insertRegistration(reg);
                 session.setAttribute("msg", "Register successfully!");
             }

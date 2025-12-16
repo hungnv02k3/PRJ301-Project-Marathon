@@ -318,8 +318,7 @@ public class OrganizerController extends HttpServlet {
             
             Event event = new Event();
             event.setOrganizerId(organizerId);
-            event.setName(name);
-            event.setDescription(description);
+            event.setEventName(name);
             event.setEventDate(eventDate);
             event.setEventStartTime(eventStartTime);
             event.setLocation(location);
@@ -393,8 +392,7 @@ public class OrganizerController extends HttpServlet {
             
             Date eventDate = new Date(eventStartTime.getTime());
             
-            event.setName(name);
-            event.setDescription(description);
+            event.setEventName(name);
             event.setEventDate(eventDate);
             event.setEventStartTime(eventStartTime);
             event.setLocation(location);

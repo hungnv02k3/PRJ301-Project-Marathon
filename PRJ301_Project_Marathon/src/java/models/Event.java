@@ -19,10 +19,7 @@ public class Event {
     private Date registrationDeadline;
     private String status;
     // getters + setters
-    public Event(int eventId, int organizerId, String eventName,
-            Date eventDate, Timestamp eventStartTime,
-            String location, Date registrationDeadline,
-            int maxParticipants, String status) {
+    public Event(int eventId, int organizerId, String eventName, String location, Date eventDate, String status, int maxParticipants, Date registrationDeadline, String status1) {
         this.eventId = eventId;
         this.organizerId = organizerId;
         this.eventName = eventName;
@@ -32,6 +29,14 @@ public class Event {
         this.registrationDeadline = registrationDeadline;
         this.maxParticipants = maxParticipants;
         this.status = status;
+    }
+
+    public String getEventName() {
+        return eventName;
+    }
+
+    public void setEventName(String eventName) {
+        this.eventName = eventName;
     }
 
     public int getOrganizerId() {
@@ -62,13 +67,6 @@ public class Event {
         this.eventId = eventId;
     }
 
-    public int getOrganizerId() {
-        return organizerId;
-    }
-
-    public void setOrganizerId(int organizerId) {
-        this.organizerId = organizerId;
-    }
 
 
     public Date getEventDate() {

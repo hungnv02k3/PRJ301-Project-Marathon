@@ -7,15 +7,16 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import models.Event;
+
 /**
  *
  * @author THINKPAD
  */
 public class EventDAO extends DBContext {
-    
+
     private PreparedStatement stm;
     private ResultSet rs;
-    
+
     public List<Event> getEventsByOrganizer(int organizerId) {
         List<Event> list = new ArrayList<>();
         try {
@@ -47,7 +48,7 @@ public class EventDAO extends DBContext {
         }
         return list;
     }
-    
+
     public Event getEventById(int eventId) {
         Event event = null;
         try {
@@ -73,8 +74,12 @@ public class EventDAO extends DBContext {
                 event = new Event(id, organizerId, name, description, eventDate, location, maxParticipants, registrationDeadline, status);
                 event.setEventStartTime(eventStartTime);
             }
+        } catch (Exception e) {
+
         }
+        return event;
     }
+
     public int countOpenEvents(String keyword) {
         int count = 0;
 
@@ -138,12 +143,11 @@ public class EventDAO extends DBContext {
                 Event e = new Event(
                         rs.getInt("event_id"),
                         rs.getInt("organizer_id"),
-                        rs.getString("event_name"),
+                        rs.getString("event_name"), rs.getString("location"),
                         rs.getDate("event_date"),
-                        rs.getTimestamp("event_start_time"),
-                        rs.getString("location"),
-                        rs.getDate("registration_deadline"),
+                        rs.getString("status"),
                         rs.getInt("max_participants"),
+                        rs.getDate("registration_deadline"),
                         rs.getString("status")
                 );
                 list.add(e);
@@ -155,14 +159,13 @@ public class EventDAO extends DBContext {
     }
 
     // Lấy event theo id (dùng khi đăng ký)
-    
     public void createEvent(Event event) {
         try {
             String sqlStatement = "INSERT INTO Events (organizer_id, event_name, event_date, event_start_time, location, max_participants, registration_deadline, status) "
-                             + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             stm = connection.prepareStatement(sqlStatement);
             stm.setInt(1, event.getOrganizerId());
-            stm.setString(2, event.getName());
+            stm.setString(2, event.getEventName());
             stm.setDate(3, event.getEventDate());
             stm.setTimestamp(4, event.getEventStartTime());
             stm.setString(5, event.getLocation());
@@ -174,13 +177,13 @@ public class EventDAO extends DBContext {
             System.out.println(e);
         }
     }
-    
+
     public void updateEvent(Event event) {
         try {
             String sqlStatement = "UPDATE Events SET event_name = ?, event_date = ?, event_start_time = ?, location = ?, "
-                               + "max_participants = ?, registration_deadline = ?, status = ? WHERE event_id = ?";
+                    + "max_participants = ?, registration_deadline = ?, status = ? WHERE event_id = ?";
             stm = connection.prepareStatement(sqlStatement);
-            stm.setString(1, event.getName());
+            stm.setString(1, event.getEventName());
             stm.setDate(2, event.getEventDate());
             stm.setTimestamp(3, event.getEventStartTime());
             stm.setString(4, event.getLocation());
@@ -193,7 +196,7 @@ public class EventDAO extends DBContext {
             System.out.println(e);
         }
     }
-    
+
     public void pauseEvent(int eventId) {
         try {
             String sqlStatement = "UPDATE Events SET status = 'PAUSE' WHERE event_id = ?";
@@ -203,13 +206,6 @@ public class EventDAO extends DBContext {
         } catch (Exception e) {
             System.out.println(e);
         }
-    }
-    
-    public void closeEvent(int eventId) {
-        try {
-            String sqlStatement = "UPDATE Events SET status = 'Closed' WHERE event_id = ?";
-            stm = connection.prepareStatement(sqlStatement);
-        return null;
     }
 
     // Organizer tạo event
@@ -250,7 +246,7 @@ public class EventDAO extends DBContext {
             System.out.println(e);
         }
     }
-    
+
     public int getRegistrationCountByEvent(int eventId) {
         int count = 0;
         try {
@@ -267,4 +263,3 @@ public class EventDAO extends DBContext {
         return count;
     }
 }
-
