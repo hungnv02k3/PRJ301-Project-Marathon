@@ -31,7 +31,7 @@
         
         <div class="row">
             <div class="col-sm-12">
-                <a href="${pageContext.request.contextPath}/organizer/routes?eventId=${event.eventId}" class="btn btn-default">
+                <a href="${pageContext.request.contextPath}/organizer/routes?eventId=${event.eventId}" class="btn btn-primary" style="margin-right: 10px;">
                     <i class="fa fa-arrow-left"></i> Back to Routes
                 </a>
                 <a href="${pageContext.request.contextPath}/organizer/checkpoints?routeId=${route.routeId}" class="btn btn-primary">
@@ -111,18 +111,14 @@
             
             // Fix map size after delays
             setTimeout(function() {
-                if (map) {
-                    map.invalidateSize();
-                }
+                map.invalidateSize();
             }, 300);
             
             setTimeout(function() {
-                if (map) {
-                    map.invalidateSize();
-                }
+                map.invalidateSize();
             }, 1000);
             
-            // Draw route if we have checkpoints with coordinates
+            // Draw marker
             var routePoints = [];
             checkpoints.forEach(function(cp) {
                 if (cp.lat !== 0 && cp.lng !== 0) {
@@ -146,7 +142,6 @@
                 // Fit map to show all points
                 map.fitBounds(polyline.getBounds());
             } else {
-                // No checkpoints with coordinates, show message
                 var infoDiv = document.createElement('div');
                 infoDiv.className = 'alert alert-info';
                 infoDiv.innerHTML = '<i class="fa fa-info-circle"></i> No checkpoints with coordinates found. Please add checkpoints with map locations.';
@@ -154,7 +149,7 @@
             }
             
         } catch (error) {
-
+            console.error('Error initializing map:', error);
         }
     }
     

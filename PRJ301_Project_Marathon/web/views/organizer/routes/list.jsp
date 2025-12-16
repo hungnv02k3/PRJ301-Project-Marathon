@@ -1,6 +1,7 @@
 <%@page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@page import="java.util.Date" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -56,6 +57,15 @@
                                             </tr>
                                         </thead>
                                         <tbody>
+                                            <c:set var="now" value="<%= new java.util.Date() %>" />
+                                            <c:set var="deadlinePassed" value="false" />
+                                            <c:if test="${event.registrationDeadline != null}">
+                                                <c:set var="deadlineTime" value="${event.registrationDeadline.time}" />
+                                                <c:set var="nowTime" value="${now.time}" />
+                                                <c:if test="${deadlineTime <= nowTime}">
+                                                    <c:set var="deadlinePassed" value="true" />
+                                                </c:if>
+                                            </c:if>
                                             <c:forEach var="route" items="${routes}">
                                                 <tr>
                                                     <td>${route.routeId}</td>
@@ -71,18 +81,20 @@
                                                            class="btn btn-sm btn-primary" style="margin: 0 !important; margin-right: 5px;">
                                                             <i class="fa fa-map-marker"></i> Checkpoints
                                                         </a>
-                                                        <a href="${pageContext.request.contextPath}/organizer/routes/edit?id=${route.routeId}" 
-                                                           class="btn btn-sm btn-warning" style="margin: 0 !important; margin-right: 5px;">
-                                                            <i class="fa fa-edit"></i> Edit
-                                                        </a>
-                                                        <form method="post" action="${pageContext.request.contextPath}/organizer/routes/delete" style="display: inline-block; margin-right: 5px; vertical-align: middle; margin-top: 0; margin-bottom: 0;">
-                                                            <input type="hidden" name="id" value="${route.routeId}">
-                                                            <button type="submit" class="btn btn-sm btn-danger" 
-                                                                    onclick="return confirm('Are you sure you want to delete this route? All checkpoints will also be deleted.');"
-                                                                    style="margin: 0 !important;">
-                                                                <i class="fa fa-trash"></i> Delete
-                                                            </button>
-                                                        </form>
+                                                        <c:if test="${!deadlinePassed}">
+                                                            <a href="${pageContext.request.contextPath}/organizer/routes/edit?id=${route.routeId}" 
+                                                               class="btn btn-sm btn-warning" style="margin: 0 !important; margin-right: 5px;">
+                                                                <i class="fa fa-edit"></i> Edit
+                                                            </a>
+                                                            <form method="post" action="${pageContext.request.contextPath}/organizer/routes/delete" style="display: inline-block; margin-right: 5px; vertical-align: middle; margin-top: 0; margin-bottom: 0;">
+                                                                <input type="hidden" name="id" value="${route.routeId}">
+                                                                <button type="submit" class="btn btn-sm btn-danger" 
+                                                                        onclick="return confirm('Are you sure you want to delete this route? All checkpoints will also be deleted.');"
+                                                                        style="margin: 0 !important;">
+                                                                    <i class="fa fa-trash"></i> Delete
+                                                                </button>
+                                                            </form>
+                                                        </c:if>
                                                     </td>
                                                 </tr>
                                             </c:forEach>
