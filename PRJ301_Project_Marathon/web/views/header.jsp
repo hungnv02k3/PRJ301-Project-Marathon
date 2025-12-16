@@ -1,5 +1,6 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-                        <link rel="stylesheet" href="/PRJ301_Project_Marathon/static/css/styles.css"/>
+<link rel="stylesheet" href="/PRJ301_Project_Marathon/static/css/styles.css"/>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 
 <header id="header">
     <div class="header_top">
@@ -33,25 +34,31 @@
                 <div class="col-sm-4">
                     <div class="logo pull-left">
                         <a href="${pageContext.request.contextPath}/home">
-                            <img src="${pageContext.request.contextPath}/images/home/logo.png" alt=""/>
+                            Home
                         </a>
                     </div>
                 </div>
-
                 <div class="col-sm-8">
                     <div class="shop-menu pull-right">
                         <ul class="nav navbar-nav">
-                            <li><a href="#"><i class="fa fa-user"></i> Account</a></li>
-                            <li>
-                                <a href="${pageContext.request.contextPath}/login">
-                                    <i class="fa fa-lock"></i> Login
-                                </a>
-                            </li>
-                            <li>
-                                <a href="${pageContext.request.contextPath}/signup">
-                                    <i class="fa fa-edit"></i> Signup
-                                </a>
-                            </li>
+                            <c:choose>
+                                <c:when test="${not empty sessionScope.account}">
+                                    <li>
+                                        <a href="#"><i class="fa fa-user"></i>
+                                            ${sessionScope.account.username}
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="logout">
+                                            <i class="fa fa-sign-out"></i> Logout
+                                        </a>
+                                    </li>
+                                </c:when>
+                                <c:otherwise>
+                                    <li><a href="${pageContext.request.contextPath}/login">Login</a></li>
+                                    <li><a href="${pageContext.request.contextPath}/signup">Signup</a></li>
+                                    </c:otherwise>
+                                </c:choose>
                         </ul>
                     </div>
                 </div>

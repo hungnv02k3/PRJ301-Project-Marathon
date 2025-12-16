@@ -2,7 +2,6 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-
 package controllers;
 
 import dal.AccountDAO;
@@ -13,6 +12,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import models.Account;
 import models.Runner;
 
@@ -21,9 +21,11 @@ import models.Runner;
  * @author User
  */
 public class SignUpController extends HttpServlet {
-   
-    /** 
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
+
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -32,6 +34,11 @@ public class SignUpController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("account") == null) {
+            response.sendRedirect("login");
+            return;
+        }
 
         request.getRequestDispatcher("views/signup.jsp").forward(request, response);
     }
@@ -57,7 +64,7 @@ public class SignUpController extends HttpServlet {
             // 1. check trùng username
             if (accountDAO.getAccountByUsername(username) != null) {
                 request.setAttribute("error", "Username already exists!");
-                request.getRequestDispatcher("signup.jsp").forward(request, response);
+                request.getRequestDispatcher("views/signup.jsp").forward(request, response);
                 return;
             }
 
@@ -77,17 +84,18 @@ public class SignUpController extends HttpServlet {
 
             runnerDAO.insertRunner(r);
 
-            response.sendRedirect("login.jsp");
+            response.sendRedirect("login");
 
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Signup failed!");
-            request.getRequestDispatcher("signup.jsp").forward(request, response);
+            request.getRequestDispatcher("views/signup.jsp").forward(request, response);
         }
     }
 
-    /** 
+    /**
      * Returns a short description of the servlet.
+     *
      * @return a String containing servlet description
      */
     @Override

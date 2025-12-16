@@ -5,8 +5,7 @@
 <html>
 <head>
     <title>Runner Signup</title>
-    <link rel="stylesheet"
-          href="${pageContext.request.contextPath}/static/css/style.css">
+                           <link rel="stylesheet" href="/PRJ301_Project_Marathon/static/css/styles.css"/>
 </head>
 <body>
 
@@ -20,7 +19,7 @@
 
                     <h2>Runner Signup</h2>
 
-                    <form action="${pageContext.request.contextPath}/signup-runner"
+                    <form action="signup"
                           method="post">
 
                         <input type="text" name="username"
