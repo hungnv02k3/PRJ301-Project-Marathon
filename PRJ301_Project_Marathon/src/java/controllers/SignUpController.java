@@ -36,7 +36,7 @@ public class SignUpController extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession();
         Account account = (Account) session.getAttribute("account");
-        if (account == null) {
+        if (account != null) {
             response.sendRedirect("login");
         } else {
             request.getRequestDispatcher("views/signup.jsp").forward(request, response);
@@ -46,7 +46,9 @@ public class SignUpController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
+        HttpSession session = request.getSession();
+        AccountDAO accountDAO = new AccountDAO();
+        RunnerDAO runnerDAO = new RunnerDAO();
         request.setCharacterEncoding("UTF-8");
 
         String username = request.getParameter("username");
@@ -58,21 +60,34 @@ public class SignUpController extends HttpServlet {
         String phone = request.getParameter("phone");
 
         try {
-            AccountDAO accountDAO = new AccountDAO();
-            RunnerDAO runnerDAO = new RunnerDAO();
-
-            // 1. check trùng username
+            // check username
             if (accountDAO.getAccountByUsername(username) != null) {
                 request.setAttribute("error", "Username already exists!");
                 request.getRequestDispatcher("views/signup.jsp").forward(request, response);
                 return;
             }
 
-            // 2. tạo account
+// ✅ check email runner
+            if (runnerDAO.existsByEmail(email)) {
+                request.setAttribute("error", "Email already registered!");
+                request.getRequestDispatcher("views/signup.jsp").forward(request, response);
+                return;
+            }
+            if (runnerDAO.existsByPhone(phone)) {
+                request.setAttribute("error", "Phone already registered!");
+                request.getRequestDispatcher("views/signup.jsp").forward(request, response);
+                return;
+            }
+// tạo account
             Account acc = new Account(username, password, "runner");
             int accountId = accountDAO.insertAccount(acc);
+            if (accountId == -1) {
+                request.setAttribute("error", "Create account failed");
+                request.getRequestDispatcher("views/signup.jsp").forward(request, response);
+                return;
+            }
 
-            // 3. tạo runner
+// tạo runner
             Runner r = new Runner(
                     accountId,
                     fullName,
@@ -84,13 +99,14 @@ public class SignUpController extends HttpServlet {
 
             runnerDAO.insertRunner(r);
 
+            session.setAttribute("msg", "Register successfully!");
             response.sendRedirect("login");
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            request.setAttribute("error", "Signup failed!");
+        } catch (Exception ex) {
+            request.setAttribute("error", "Create account failed");
             request.getRequestDispatcher("views/signup.jsp").forward(request, response);
         }
+
     }
 
     /**

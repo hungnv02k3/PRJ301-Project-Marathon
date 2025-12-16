@@ -15,24 +15,34 @@ public class EventDAO extends DBContext {
     public int countOpenEvents(String keyword) {
         int count = 0;
 
-        String sql
-                = "SELECT COUNT(*) FROM Events "
+        String sql = "SELECT COUNT(*) FROM Events "
                 + "WHERE status = 'OPEN' "
                 + (keyword != null && !keyword.trim().isEmpty()
                 ? "AND event_name LIKE ? " : "");
 
         try {
-            PreparedStatement ps = connection.prepareStatement(sql);
+            stm = connection.prepareStatement(sql);
+
             if (keyword != null && !keyword.trim().isEmpty()) {
-                ps.setString(1, "%" + keyword + "%");
+                stm.setString(1, "%" + keyword + "%");
             }
 
-            rs = ps.executeQuery();
+            rs = stm.executeQuery();
             if (rs.next()) {
                 count = rs.getInt(1);
             }
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (stm != null) {
+                    stm.close();
+                }
+            } catch (Exception e) {
+            }
         }
 
         return count;

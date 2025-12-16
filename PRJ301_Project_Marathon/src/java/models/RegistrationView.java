@@ -1,26 +1,21 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package models;
 
-import java.util.Date;
+import java.sql.Date;
 
-/**
- *
- * @author User
- */
-public class Registration {
-
+public class RegistrationView {
     private int registrationId;
     private int eventId;
-    private int runnerId;
+    private String eventName;
+    private Date eventDate;
+    private String location;
     private Date registrationDate;
     private String bibNumber;
     private String status;
 
-    public Registration() {
+    public RegistrationView() {
     }
+
+    // getter / setter
 
     public int getRegistrationId() {
         return registrationId;
@@ -28,15 +23,6 @@ public class Registration {
 
     public void setRegistrationId(int registrationId) {
         this.registrationId = registrationId;
-    }
-
-    public Registration(int eventId, int runnerId, Date registrationDate,
-            String bibNumber, String status) {
-        this.eventId = eventId;
-        this.runnerId = runnerId;
-        this.registrationDate = registrationDate;
-        this.bibNumber = bibNumber;
-        this.status = status;
     }
 
     public int getEventId() {
@@ -47,12 +33,28 @@ public class Registration {
         this.eventId = eventId;
     }
 
-    public int getRunnerId() {
-        return runnerId;
+    public String getEventName() {
+        return eventName;
     }
 
-    public void setRunnerId(int runnerId) {
-        this.runnerId = runnerId;
+    public void setEventName(String eventName) {
+        this.eventName = eventName;
+    }
+
+    public Date getEventDate() {
+        return eventDate;
+    }
+
+    public void setEventDate(Date eventDate) {
+        this.eventDate = eventDate;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     public Date getRegistrationDate() {
@@ -78,5 +80,4 @@ public class Registration {
     public void setStatus(String status) {
         this.status = status;
     }
-
 }

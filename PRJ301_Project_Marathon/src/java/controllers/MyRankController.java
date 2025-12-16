@@ -4,7 +4,7 @@
  */
 package controllers;
 
-import dal.AccountDAO;
+import dal.ResultDAO;
 import dal.RunnerDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -12,14 +12,15 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+import java.util.List;
 import models.Account;
+import models.Result;
 
 /**
  *
  * @author User
  */
-public class LoginController extends HttpServlet {
+public class MyRankController extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -38,10 +39,10 @@ public class LoginController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet LoginController</title>");
+            out.println("<title>Servlet MyRankController</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet LoginController at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet MyRankController at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -57,50 +58,37 @@ public class LoginController extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doGet(HttpServletRequest request,
-            HttpServletResponse response)
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        Account account = (Account) session.getAttribute("account");
-        if (account != null) {
-            response.sendRedirect("home");
+
+        Account acc = (Account) request.getSession().getAttribute("account");
+        if (acc == null) {
+            response.sendRedirect("login");
             return;
         }
-        request.getRequestDispatcher("views/login.jsp")
-                .forward(request, response);
+
+        RunnerDAO runnerDAO = new RunnerDAO();
+        int runnerId = runnerDAO.findRunnerIDByAccountID(acc.getAccountId());
+
+        ResultDAO resultDAO = new ResultDAO();
+        List<Result> results = resultDAO.getResultsByRunner(runnerId);
+
+        request.setAttribute("results", results);
+        request.getRequestDispatcher("views/myrank.jsp").forward(request, response);
     }
-    
+
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
     @Override
-    protected void doPost(HttpServletRequest request,
-            HttpServletResponse response)
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        RunnerDAO runDAO = new RunnerDAO();
-        AccountDAO accDAO = new AccountDAO();
-        Account acc = accDAO.getAccountByUsername(username);
-        
-        if (acc == null || !acc.getPassword().equals(password)) {
-            request.setAttribute("error", "Invalid username or password!");
-            request.getRequestDispatcher("views/login.jsp")
-                    .forward(request, response);
-            return;
-        }
-
-        // LOGIN OK → tạo session
-        HttpSession session = request.getSession();
-        session.setAttribute("account", acc);
-
-        // Điều hướng theo role
-        if ("runner".equals(acc.getRole())) {
-            session.setAttribute("runnerId", runDAO.findRunnerIDByAccountID(acc.getAccountId()));
-            response.sendRedirect("home");
-        } else if ("organizer".equals(acc.getRole())) {
-            response.sendRedirect("organizer/home");
-        } else {
-            response.sendRedirect("admin/home");
-        }
+        processRequest(request, response);
     }
 
     /**

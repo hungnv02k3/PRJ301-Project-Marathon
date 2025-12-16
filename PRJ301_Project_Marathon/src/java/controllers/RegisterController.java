@@ -4,8 +4,7 @@
  */
 package controllers;
 
-import dal.AccountDAO;
-import dal.RunnerDAO;
+import dal.RegistrationDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -13,13 +12,15 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.sql.Date;
 import models.Account;
+import models.Registration;
 
 /**
  *
  * @author User
  */
-public class LoginController extends HttpServlet {
+public class RegisterController extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -38,10 +39,10 @@ public class LoginController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet LoginController</title>");
+            out.println("<title>Servlet RegisterController</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet LoginController at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet RegisterController at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -57,49 +58,52 @@ public class LoginController extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doGet(HttpServletRequest request,
-            HttpServletResponse response)
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        Account account = (Account) session.getAttribute("account");
-        if (account != null) {
-            response.sendRedirect("home");
-            return;
-        }
-        request.getRequestDispatcher("views/login.jsp")
-                .forward(request, response);
+        processRequest(request, response);
     }
-    
+
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
     @Override
-    protected void doPost(HttpServletRequest request,
-            HttpServletResponse response)
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
-        String username = request.getParameter("username");
-        String password = request.getParameter("password");
-        RunnerDAO runDAO = new RunnerDAO();
-        AccountDAO accDAO = new AccountDAO();
-        Account acc = accDAO.getAccountByUsername(username);
-        
-        if (acc == null || !acc.getPassword().equals(password)) {
-            request.setAttribute("error", "Invalid username or password!");
-            request.getRequestDispatcher("views/login.jsp")
-                    .forward(request, response);
-            return;
-        }
-
-        // LOGIN OK → tạo session
         HttpSession session = request.getSession();
-        session.setAttribute("account", acc);
-
-        // Điều hướng theo role
-        if ("runner".equals(acc.getRole())) {
-            session.setAttribute("runnerId", runDAO.findRunnerIDByAccountID(acc.getAccountId()));
-            response.sendRedirect("home");
-        } else if ("organizer".equals(acc.getRole())) {
-            response.sendRedirect("organizer/home");
+        Date today = new Date(System.currentTimeMillis());
+        Account account = (Account) session.getAttribute("account");
+        if (account == null) {
+            response.sendRedirect("login");
         } else {
-            response.sendRedirect("admin/home");
+            int eventId = Integer.parseInt(request.getParameter("eventId"));
+            int runnerId = (int) session.getAttribute("runnerId");
+            RegistrationDAO dao = new RegistrationDAO();
+
+            String status = dao.getRegistrationStatus(eventId, runnerId);
+
+            if ("Registered".equals(status) || "ACCEPTED".equals(status)) {
+
+                session.setAttribute("msg", "You already registered this event.");
+
+            } else if ("CANCELLED".equals(status)) {
+
+                dao.reRegister(eventId, runnerId, today);
+                session.setAttribute("msg", "Register again successfully!");
+
+            } else {
+                // chưa từng đăng ký → INSERT
+                Registration reg
+                        = new Registration(eventId, runnerId, today, "", "Registered");
+                dao.insertRegistration(reg);
+                session.setAttribute("msg", "Register successfully!");
+            }
+
+            response.sendRedirect("home");
         }
     }
 

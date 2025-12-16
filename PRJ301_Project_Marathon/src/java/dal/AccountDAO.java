@@ -18,20 +18,24 @@ public class AccountDAO extends DBContext {
     private ResultSet rs;
 
     public int insertAccount(Account acc) {
+        String sql = "INSERT INTO Accounts(username, password, role) VALUES(?,?,?)";
+
         try {
-            String sql = "INSERT INTO Accounts(username, password, role) VALUES(?,?,?)";
-            stm = connection.prepareCall(sql);
+            stm = connection.prepareStatement(
+                    sql,
+                    PreparedStatement.RETURN_GENERATED_KEYS
+            );
             stm.setString(1, acc.getUserName());
             stm.setString(2, acc.getPassword());
             stm.setString(3, acc.getRole());
             stm.executeUpdate();
-
             rs = stm.getGeneratedKeys();
             if (rs.next()) {
                 return rs.getInt(1); // account_id
             }
+
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace(); // BẮT BUỘC
         }
         return -1;
     }

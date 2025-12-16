@@ -1,6 +1,6 @@
 package models;
 
-import java.util.Date;
+import java.sql.Date;
 
 public class Runner {
     private int runnerId;
@@ -33,6 +33,9 @@ public class Runner {
 
     public int getAccountId() {
         return accountId;
+    }
+
+    public Runner() {
     }
 
     public void setAccountId(int accountId) {

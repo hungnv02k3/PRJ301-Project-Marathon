@@ -27,19 +27,32 @@
                     <button type="submit">Search</button>
                 </form>
             </div>
+            <c:if test="${not empty sessionScope.msg}">
+                <div id="toast-success" class="toast success">
+                    ${sessionScope.msg}
+                </div>
+                <c:remove var="msg" scope="session"/>
+            </c:if>
+
 
             <!-- EVENT LIST -->
             <div class="marathon-grid">
                 <c:forEach var="e" items="${events}">
                     <div class="marathon-card">
-                        <h3>${e.eventName}</h3>
+                        <h3>
+                            <a href="eventdetail?id=${e.eventId}">
+                                ${e.eventName}
+                            </a>
+                        </h3>
+
                         <p><strong>Date:</strong> ${e.eventDate}</p>
                         <p><strong>Location:</strong> ${e.location}</p>
 
-                        <form action="register" method="post">
-                            <input type="hidden" name="eventId" value="${e.eventId}">
-                            <button type="submit">Register</button>
-                        </form>
+                        <button class="register-btn"
+                                onclick="openRegisterModal(${e.eventId}, '${e.eventName}')">
+                            Register
+                        </button>
+
                     </div>
                 </c:forEach>
             </div>
@@ -62,6 +75,50 @@
         </section>
 
         <jsp:include page="footer.jsp"/>
+        <div id="registerModal" class="modal-overlay">
+            <div class="modal-box">
+                <h3>Confirm Registration</h3>
+                <p id="registerText"></p>
+
+                <form id="registerForm" action="register" method="post">
+                    <input type="hidden" name="eventId" id="registerEventId">
+                    <div class="modal-actions">
+                        <button type="button" class="btn-cancel"
+                                onclick="closeRegisterModal()">Cancel</button>
+                        <button type="submit" class="btn-confirm">
+                            Confirm
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
     </body>
 </html>
+<script>
+    function openRegisterModal(eventId, eventName) {
+        document.getElementById("registerEventId").value = eventId;
+        document.getElementById("registerText").innerText =
+                "Do you want to register for \"" + eventName + "\"?";
+        document.getElementById("registerModal").style.display = "flex";
+    }
+
+    function closeRegisterModal() {
+        document.getElementById("registerModal").style.display = "none";
+    }
+
+    // click ngoài modal để đóng
+    window.addEventListener("click", function (e) {
+        const modal = document.getElementById("registerModal");
+        if (e.target === modal) {
+            closeRegisterModal();
+        }
+    });
+</script>
+<script>
+    setTimeout(() => {
+        const toast = document.getElementById("toast-success");
+        if (toast)
+            toast.remove();
+    }, 3500);
+</script>
