@@ -3,7 +3,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<jsp:include page="../../header.jsp"/>
+    <link href="${pageContext.request.contextPath}/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/static/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
 <style>
     #map {
         height: 600px !important;
@@ -21,6 +28,9 @@
 </style>
 </head>
 <body>
+
+<jsp:include page="../../header.jsp"/>
+
 <section>
     <div class="container">
         <div class="row">

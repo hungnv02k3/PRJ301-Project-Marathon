@@ -3,7 +3,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <title>Registration List</title>
+    <link href="${pageContext.request.contextPath}/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/static/css/font-awesome.min.css" rel="stylesheet">
+</head>
+<body>
+
 <jsp:include page="../../header.jsp"/>
+
 <section>
     <div class="container">
         <div class="row">

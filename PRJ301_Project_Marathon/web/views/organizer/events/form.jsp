@@ -4,7 +4,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <title><c:choose><c:when test="${event != null}">Edit Event</c:when><c:otherwise>Create New Event</c:otherwise></c:choose></title>
+    <link href="${pageContext.request.contextPath}/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="${pageContext.request.contextPath}/static/css/font-awesome.min.css" rel="stylesheet">
+</head>
+<body>
+
 <jsp:include page="../../header.jsp"/>
+
 <section>
     <div class="container">
         <div class="row">
