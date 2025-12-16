@@ -67,8 +67,10 @@
                             </div>
                             
                             <div class="form-group">
-                                <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> Save</button>
-                                <a href="${pageContext.request.contextPath}/organizer/checkpoints?routeId=${route.routeId}" class="btn btn-default">
+                                <button type="submit" class="btn btn-primary" style="margin-right: 10px; margin-top: 0; margin-bottom: 0; vertical-align: top;">
+                                    <i class="fa fa-save"></i> Save
+                                </button>
+                                <a href="${pageContext.request.contextPath}/organizer/checkpoints?routeId=${route.routeId}" class="btn btn-default" style="margin-top: 0; margin-bottom: 0; vertical-align: top;">
                                     <i class="fa fa-times"></i> Cancel
                                 </a>
                             </div>
@@ -84,16 +86,13 @@
     var map;
     var marker;
     
-    // Wait for page to fully load including Leaflet.js
-    window.addEventListener('load', function() {
-        // Check if Leaflet is loaded
+        window.addEventListener('load', function() {
         if (typeof L === 'undefined') {
             console.error('Leaflet.js is not loaded!');
             document.getElementById('map').innerHTML = '<div class="alert alert-danger">Map library failed to load. Please refresh the page.</div>';
             return;
         }
         
-        // Initialize map
         <c:choose>
             <c:when test="${checkpoint != null && checkpoint.latitude != null && checkpoint.longitude != null}">
                 map = L.map('map').setView([${checkpoint.latitude}, ${checkpoint.longitude}], 15);
@@ -103,30 +102,25 @@
             </c:otherwise>
         </c:choose>
         
-        // Add OpenStreetMap tile layer (correct URL pattern)
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
             maxZoom: 19,
             subdomains: 'abc'
         }).addTo(map);
         
-        // Add existing marker if editing
         <c:if test="${checkpoint != null && checkpoint.latitude != null && checkpoint.longitude != null}">
             marker = L.marker([${checkpoint.latitude}, ${checkpoint.longitude}]).addTo(map);
             marker.bindPopup('<b>${checkpoint.cpName}</b><br>Lat: ${checkpoint.latitude}<br>Lng: ${checkpoint.longitude}').openPopup();
         </c:if>
         
-        // Fix map size after a short delay
         setTimeout(function() {
             map.invalidateSize();
         }, 200);
         
-        // Handle map clicks
         map.on('click', function(e) {
             var lat = e.latlng.lat;
             var lng = e.latlng.lng;
             
-            // Remove existing marker
             if (marker) {
                 map.removeLayer(marker);
             }

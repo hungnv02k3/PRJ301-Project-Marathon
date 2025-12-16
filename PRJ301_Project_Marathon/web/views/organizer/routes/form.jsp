@@ -94,10 +94,10 @@
                             </div>
                             
                             <div class="form-group">
-                                <button type="submit" class="btn btn-primary" style="margin-right: 10px;">
+                                <button type="submit" class="btn btn-primary" style="margin-right: 10px; margin-top: 0; margin-bottom: 0; vertical-align: top;">
                                     <i class="fa fa-save"></i> Save
                                 </button>
-                                <a href="${pageContext.request.contextPath}/organizer/routes?eventId=${event.eventId}" class="btn btn-primary">
+                                <a href="${pageContext.request.contextPath}/organizer/routes?eventId=${event.eventId}" class="btn btn-default" style="margin-top: 0; margin-bottom: 0; vertical-align: top;">
                                     <i class="fa fa-times"></i> Cancel
                                 </a>
                             </div>
