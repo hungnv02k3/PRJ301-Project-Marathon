@@ -1,5 +1,6 @@
 package models;
 
+
 import java.sql.Date;
 import java.sql.Timestamp;
 
@@ -10,31 +11,40 @@ import java.sql.Timestamp;
 public class Event {
     private int eventId;
     private int organizerId;
-    private String name;
-    private String description;
+    private String eventName;
     private Date eventDate;
     private Timestamp eventStartTime; 
     private String location;
     private int maxParticipants;
     private Date registrationDeadline;
     private String status;
+    // getters + setters
+    public Event(int eventId, int organizerId, String eventName,
+            Date eventDate, Timestamp eventStartTime,
+            String location, Date registrationDeadline,
+            int maxParticipants, String status) {
+        this.eventId = eventId;
+        this.organizerId = organizerId;
+        this.eventName = eventName;
+        this.eventDate = eventDate;
+        this.eventStartTime = eventStartTime;
+        this.location = location;
+        this.registrationDeadline = registrationDeadline;
+        this.maxParticipants = maxParticipants;
+        this.status = status;
+    }
+
+    public int getOrganizerId() {
+        return organizerId;
+    }
+
+    public void setOrganizerId(int organizerId) {
+        this.organizerId = organizerId;
+    }
 
     public Event() {
     }
 
-    public Event(int eventId, int organizerId, String name, String description, 
-                 Date eventDate, String location, int maxParticipants, 
-                 Date registrationDeadline, String status) {
-        this.eventId = eventId;
-        this.organizerId = organizerId;
-        this.name = name;
-        this.description = description;
-        this.eventDate = eventDate;
-        this.location = location;
-        this.maxParticipants = maxParticipants;
-        this.registrationDeadline = registrationDeadline;
-        this.status = status;
-    }
 
     public Timestamp getEventStartTime() {
         return eventStartTime;
@@ -60,21 +70,6 @@ public class Event {
         this.organizerId = organizerId;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
 
     public Date getEventDate() {
         return eventDate;

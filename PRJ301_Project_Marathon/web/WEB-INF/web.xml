@@ -16,6 +16,30 @@
         <servlet-name>LogOutController</servlet-name>
         <servlet-class>controllers.LogOutController</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>RegisterController</servlet-name>
+        <servlet-class>controllers.RegisterController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>EventDetailController</servlet-name>
+        <servlet-class>controllers.EventDetailController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>MyResgistration</servlet-name>
+        <servlet-class>controllers.MyResgistration</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>CancelRegistration</servlet-name>
+        <servlet-class>controllers.CancelRegistration</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>MyRankController</servlet-name>
+        <servlet-class>controllers.MyRankController</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>RunnerProfileController</servlet-name>
+        <servlet-class>controllers.RunnerProfileController</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>SignUpController</servlet-name>
         <url-pattern>/signup</url-pattern>
@@ -31,5 +55,29 @@
     <servlet-mapping>
         <servlet-name>LogOutController</servlet-name>
         <url-pattern>/logout</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RegisterController</servlet-name>
+        <url-pattern>/register</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>EventDetailController</servlet-name>
+        <url-pattern>/eventdetail</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>MyResgistration</servlet-name>
+        <url-pattern>/myregistration</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CancelRegistration</servlet-name>
+        <url-pattern>/cancel-registration</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>MyRankController</servlet-name>
+        <url-pattern>/myrank</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RunnerProfileController</servlet-name>
+        <url-pattern>/profile</url-pattern>
     </servlet-mapping>
 </web-app>

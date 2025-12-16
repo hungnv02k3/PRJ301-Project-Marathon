@@ -2,56 +2,52 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
+
 package controllers;
 
-import dal.EventDAO;
+import dal.RegistrationDAO;
+import dal.RunnerDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import java.util.List;
 import models.Account;
-import models.Event;
 
 /**
  *
  * @author User
  */
-public class HomeController extends HttpServlet {
-
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
+public class CancelRegistration extends HttpServlet {
+   
+    /** 
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet HomeController</title>");
+            out.println("<title>Servlet CancelRegistration</title>");  
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet HomeController at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet CancelRegistration at " + request.getContextPath () + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
-    }
+    } 
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
+    /** 
      * Handles the HTTP <code>GET</code> method.
-     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
@@ -59,53 +55,47 @@ public class HomeController extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        Account account = (Account) session.getAttribute("account");
-        if (account == null) {
-            response.sendRedirect("login");
-        } else {
-            String keyword = request.getParameter("keyword");
-            int page = 1;
-            int pageSize = 6;
+    throws ServletException, IOException {
+        processRequest(request, response);
+    } 
 
-            if (request.getParameter("page") != null) {
-                page = Integer.parseInt(request.getParameter("page"));
-            }
-
-            EventDAO dao = new EventDAO();
-
-            int totalEvents = dao.countOpenEvents(keyword);
-            int totalPages = (int) Math.ceil(totalEvents * 1.0 / pageSize);
-
-            List<Event> events = dao.getAvailableEvents(keyword, page, pageSize);
-
-            request.setAttribute("events", events);
-            request.setAttribute("currentPage", page);
-            request.setAttribute("totalPages", totalPages);
-            request.getRequestDispatcher("views/home.jsp")
-                    .forward(request, response);
-        }
-
-    }
-
-    /**
+    /** 
      * Handles the HTTP <code>POST</code> method.
-     *
      * @param request servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    @Override
+     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+
+        Account acc = (Account) request.getSession().getAttribute("account");
+        if (acc == null || !"runner".equals(acc.getRole())) {
+            response.sendRedirect("login");
+            return;
+        }
+
+        int registrationId = Integer.parseInt(request.getParameter("registrationId"));
+
+        RunnerDAO runnerDAO = new RunnerDAO();
+        RegistrationDAO regDAO = new RegistrationDAO();
+
+        int runnerId = runnerDAO.findRunnerIDByAccountID(acc.getAccountId());
+
+        boolean success = regDAO.cancelRegistration(registrationId, runnerId);
+
+        if (success) {
+            request.getSession().setAttribute("msg", "Registration cancelled successfully!");
+        } else {
+            request.getSession().setAttribute("error", "Cannot cancel this registration!");
+        }
+
+        response.sendRedirect("myregistration");
     }
 
-    /**
+    /** 
      * Returns a short description of the servlet.
-     *
      * @return a String containing servlet description
      */
     @Override

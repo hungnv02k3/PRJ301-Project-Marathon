@@ -48,11 +48,28 @@
                                             ${sessionScope.account.getUserName()}
                                         </a>
                                     </li>
-                                    <li>
-                                        <a href="#" onclick="openLogoutModal()">
-                                            <i class="fa fa-sign-out"></i> Logout
-                                        </a>
-                                    </li>
+                                    <c:if test="${sessionScope.account.role == 'runner'}">
+                                        <li>
+                                            <a href="${pageContext.request.contextPath}/myregistration">
+                                                <i class="fa fa-list"></i> My Registrations
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="${pageContext.request.contextPath}/myrank">
+                                                <i class="fa fa-trophy"></i> My Rank
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="${pageContext.request.contextPath}/profile">
+                                                <i class="fa fa-user"></i> My Profile
+                                            </a>
+                                        </li>
+                                    </c:if>
+                                        <li>
+                                            <a href="#" onclick="openLogoutModal()">
+                                                <i class="fa fa-sign-out"></i> Logout
+                                            </a>
+                                        </li>
                                 </c:when>
                                 <c:otherwise>
                                     <li><a href="${pageContext.request.contextPath}/login">Login</a></li>

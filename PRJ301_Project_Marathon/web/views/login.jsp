@@ -11,6 +11,7 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>JSP Page</title>
+        <link rel="stylesheet" href="/PRJ301_Project_Marathon/static/css/styles.css"/>
     </head>
     <body>
         <jsp:include page="header.jsp"/>
@@ -35,10 +36,17 @@
                                 <button type="submit">Login</button>
                             </form>
 
+                            <c:if test="${not empty sessionScope.success}">
+                                <div id="toast-success" class="toast success">
+                                    ${sessionScope.success}
+                                </div>
+                                <c:remove var="success" scope="session"/>
+                            </c:if>
+
                             <c:if test="${not empty error}">
-                                <p style="color:red; text-align:center;">
+                                <div id="toast-error" class="toast error">
                                     ${error}
-                                </p>
+                                </div>
                             </c:if>
 
                         </div>
@@ -51,3 +59,10 @@
 
     </body>
 </html>
+<script>
+    setTimeout(() => {
+        const toast = document.querySelector('.toast');
+        if (toast)
+            toast.remove();
+    }, 3500);
+</script>

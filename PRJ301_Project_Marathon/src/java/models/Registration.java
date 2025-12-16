@@ -7,6 +7,7 @@ import java.sql.Date;
  * @author THINKPAD
  */
 public class Registration {
+
     private int registrationId;
     private int eventId;
     private int runnerId;
@@ -23,9 +24,9 @@ public class Registration {
     public Registration() {
     }
 
-    public Registration(int registrationId, int eventId, int runnerId, 
-                       Date registrationDate, String bibNumber, String status) {
-        this.registrationId = registrationId;
+    
+    public Registration(int eventId, int runnerId, Date registrationDate,
+            String bibNumber, String status) {
         this.eventId = eventId;
         this.runnerId = runnerId;
         this.registrationDate = registrationDate;

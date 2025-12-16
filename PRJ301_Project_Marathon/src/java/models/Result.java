@@ -1,12 +1,15 @@
+
 package models;
 
 import java.sql.Timestamp;
+import java.sql.Date;
 
 /**
  *
- * @author THINKPAD
+ * @author User
  */
 public class Result {
+
     private int resultId;
     private int registrationId;
     private Timestamp startTime;
@@ -18,6 +21,13 @@ public class Result {
     private String bibNumber;
     private String runnerName;
     private String eventName;
+    private int netTime;
+    private int rankingOverall;
+
+    // thêm thông tin hiển thị
+    private String eventName;
+    private Date eventDate;
+    private String location;
 
     public Result() {
     }
@@ -32,6 +42,7 @@ public class Result {
         this.rankingOverall = rankingOverall;
     }
 
+    // getter / setter
     public int getResultId() {
         return resultId;
     }
@@ -96,6 +107,22 @@ public class Result {
         this.runnerName = runnerName;
     }
 
+    public int getNetTime() {
+        return netTime;
+    }
+
+    public void setNetTime(int netTime) {
+        this.netTime = netTime;
+    }
+
+    public int getRankingOverall() {
+        return rankingOverall;
+    }
+
+    public void setRankingOverall(int rankingOverall) {
+        this.rankingOverall = rankingOverall;
+    }
+
     public String getEventName() {
         return eventName;
     }
@@ -116,4 +143,19 @@ public class Result {
     }
 }
 
+    public Date getEventDate() {
+        return eventDate;
+    }
 
+    public void setEventDate(Date eventDate) {
+        this.eventDate = eventDate;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+}

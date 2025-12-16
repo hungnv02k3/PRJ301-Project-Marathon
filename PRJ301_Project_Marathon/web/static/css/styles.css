@@ -18,12 +18,24 @@
     flex-wrap: wrap;
 }
 
-.col-sm-6 { width: 50%; }
-.col-sm-4 { width: 33.333%; }
-.col-sm-8 { width: 66.666%; }
-.col-sm-9 { width: 75%; }
-.col-sm-3 { width: 25%; }
-.col-sm-offset-4 { margin-left: 33.333%; }
+.col-sm-6 {
+    width: 50%;
+}
+.col-sm-4 {
+    width: 33.333%;
+}
+.col-sm-8 {
+    width: 66.666%;
+}
+.col-sm-9 {
+    width: 75%;
+}
+.col-sm-3 {
+    width: 25%;
+}
+.col-sm-offset-4 {
+    margin-left: 33.333%;
+}
 
 a {
     text-decoration: none;
@@ -283,4 +295,292 @@ ul {
         opacity: 1;
         transform: scale(1);
     }
+}
+/* TOAST BASE */
+.toast {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    min-width: 260px;
+    padding: 15px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    animation: slideIn 0.4s ease, fadeOut 0.4s ease 3s forwards;
+    z-index: 9999;
+}
+
+/* SUCCESS */
+.toast.success {
+    background: #27ae60;
+}
+
+/* ERROR */
+.toast.error {
+    background: #e74c3c;
+}
+
+/* ANIMATION */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+}
+.event-detail {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 30px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+.event-detail h1 {
+    margin-bottom: 20px;
+}
+
+.event-detail p {
+    margin: 10px 0;
+}
+
+.btn-register {
+    margin-top: 20px;
+    padding: 12px 20px;
+    background: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-login {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 12px 20px;
+    background: #3498db;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+}
+.btn-disabled {
+    margin-top: 20px;
+    padding: 12px 20px;
+    background: #ccc;
+    color: #555;
+    border: none;
+    border-radius: 4px;
+    cursor: not-allowed;
+}
+.reg-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.reg-table th, .reg-table td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+.status {
+    padding: 5px 10px;
+    border-radius: 4px;
+    color: white;
+    font-weight: bold;
+}
+
+.status.Registered {
+    background: #f39c12;
+}
+.status.CANCELLED {
+    background: #e74c3c;
+}
+.status.ACCEPTED {
+    background: #27ae60;
+}
+
+.status.REJECTED {
+    background: #e74c3c;
+}
+.btn-cancel {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-cancel:hover {
+    background: #c0392b;
+}
+/* =======================
+   MY RANK PAGE
+======================= */
+
+/* Banner */
+.rank-banner {
+    background: linear-gradient(to right, #ff512f, #dd2476);
+    color: #fff;
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.rank-banner h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.rank-banner p {
+    font-size: 16px;
+    opacity: 0.9;
+}
+
+/* Container */
+.rank-container {
+    max-width: 1100px;
+    margin: 40px auto 70px;
+    padding: 0 20px;
+}
+
+/* Table */
+.rank-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+/* Header */
+.rank-table thead {
+    background: #f44336;
+}
+
+.rank-table th {
+    padding: 15px;
+    color: #fff;
+    font-size: 15px;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+/* Body */
+.rank-table td {
+    padding: 15px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+    font-size: 15px;
+    color: #333;
+}
+
+/* Event name */
+.rank-table .event-name {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Zebra rows */
+.rank-table tbody tr:nth-child(even) {
+    background: #fafafa;
+}
+
+/* Hover */
+.rank-table tbody tr:hover {
+    background: #fff3f3;
+    transition: 0.2s;
+}
+
+/* Rank cell */
+.rank-cell {
+    font-weight: bold;
+    font-size: 18px;
+    color: #e74c3c;
+}
+
+/* Empty */
+.rank-empty {
+    padding: 35px;
+    font-style: italic;
+    color: #777;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .rank-banner h1 {
+        font-size: 26px;
+    }
+
+    .rank-table th,
+    .rank-table td {
+        padding: 10px 6px;
+        font-size: 14px;
+    }
+}
+/* PROFILE */
+.profile-container {
+    max-width: 500px;
+    margin: 50px auto;
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+.profile-container h2 {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.profile-form label {
+    display: block;
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+.profile-form input,
+.profile-form select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.profile-form button {
+    margin-top: 25px;
+    width: 100%;
+    padding: 12px;
+    background: #e74c3c;
+    color: #fff;
+    border: none;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.profile-form button:hover {
+    background: #c0392b;
+}
+
+.alert-success {
+    background: #2ecc71;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+    margin-bottom: 15px;
 }

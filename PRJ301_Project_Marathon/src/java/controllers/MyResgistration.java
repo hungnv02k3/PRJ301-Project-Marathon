@@ -4,23 +4,23 @@
  */
 package controllers;
 
-import dal.EventDAO;
+import dal.RegistrationDAO;
+import dal.RunnerDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import models.Account;
-import models.Event;
+import models.RegistrationView;
 
 /**
  *
  * @author User
  */
-public class HomeController extends HttpServlet {
+public class MyResgistration extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -39,10 +39,10 @@ public class HomeController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet HomeController</title>");
+            out.println("<title>Servlet MyResgistration</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet HomeController at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet MyResgistration at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -60,33 +60,23 @@ public class HomeController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        Account account = (Account) session.getAttribute("account");
-        if (account == null) {
+
+        Account acc = (Account) request.getSession().getAttribute("account");
+
+        if (acc == null || !"runner".equals(acc.getRole())) {
             response.sendRedirect("login");
-        } else {
-            String keyword = request.getParameter("keyword");
-            int page = 1;
-            int pageSize = 6;
-
-            if (request.getParameter("page") != null) {
-                page = Integer.parseInt(request.getParameter("page"));
-            }
-
-            EventDAO dao = new EventDAO();
-
-            int totalEvents = dao.countOpenEvents(keyword);
-            int totalPages = (int) Math.ceil(totalEvents * 1.0 / pageSize);
-
-            List<Event> events = dao.getAvailableEvents(keyword, page, pageSize);
-
-            request.setAttribute("events", events);
-            request.setAttribute("currentPage", page);
-            request.setAttribute("totalPages", totalPages);
-            request.getRequestDispatcher("views/home.jsp")
-                    .forward(request, response);
+            return;
         }
 
+        RunnerDAO runnerDAO = new RunnerDAO();
+        RegistrationDAO regDAO = new RegistrationDAO();
+
+        int runnerId = runnerDAO.findRunnerIDByAccountID(acc.getAccountId());
+
+        List<RegistrationView> list = regDAO.getRegistrationsByRunner(runnerId);
+
+        request.setAttribute("registrations", list);
+        request.getRequestDispatcher("views/my-registrations.jsp").forward(request, response);
     }
 
     /**

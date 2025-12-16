@@ -4,23 +4,21 @@
  */
 package controllers;
 
-import dal.EventDAO;
+import dal.RunnerDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import java.util.List;
 import models.Account;
-import models.Event;
+import models.Runner;
 
 /**
  *
  * @author User
  */
-public class HomeController extends HttpServlet {
+public class RunnerProfileController extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -39,10 +37,10 @@ public class HomeController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet HomeController</title>");
+            out.println("<title>Servlet RunnerProfileController</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet HomeController at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet RunnerProfileController at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -60,33 +58,18 @@ public class HomeController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        Account account = (Account) session.getAttribute("account");
-        if (account == null) {
+
+        Account acc = (Account) request.getSession().getAttribute("account");
+        if (acc == null) {
             response.sendRedirect("login");
-        } else {
-            String keyword = request.getParameter("keyword");
-            int page = 1;
-            int pageSize = 6;
-
-            if (request.getParameter("page") != null) {
-                page = Integer.parseInt(request.getParameter("page"));
-            }
-
-            EventDAO dao = new EventDAO();
-
-            int totalEvents = dao.countOpenEvents(keyword);
-            int totalPages = (int) Math.ceil(totalEvents * 1.0 / pageSize);
-
-            List<Event> events = dao.getAvailableEvents(keyword, page, pageSize);
-
-            request.setAttribute("events", events);
-            request.setAttribute("currentPage", page);
-            request.setAttribute("totalPages", totalPages);
-            request.getRequestDispatcher("views/home.jsp")
-                    .forward(request, response);
+            return;
         }
 
+        RunnerDAO dao = new RunnerDAO();
+        Runner runner = dao.getRunnerByAccountId(acc.getAccountId());
+
+        request.setAttribute("runner", runner);
+        request.getRequestDispatcher("views/profile.jsp").forward(request, response);
     }
 
     /**
@@ -100,7 +83,26 @@ public class HomeController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+
+        Account acc = (Account) request.getSession().getAttribute("account");
+        if (acc == null) {
+            response.sendRedirect("login");
+            return;
+        }
+
+        Runner r = new Runner();
+        r.setAccountId(acc.getAccountId());
+        r.setFullName(request.getParameter("fullName"));
+        r.setGender(request.getParameter("gender"));
+        r.setDob(java.sql.Date.valueOf(request.getParameter("dob")));
+        r.setEmail(request.getParameter("email"));
+        r.setPhone(request.getParameter("phone"));
+
+        RunnerDAO dao = new RunnerDAO();
+        dao.updateRunner(r);
+
+        request.getSession().setAttribute("msg", "Profile updated successfully!");
+        response.sendRedirect("profile");
     }
 
     /**

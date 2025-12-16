@@ -4,7 +4,7 @@
  */
 package controllers;
 
-import dal.EventDAO;
+import dal.RegistrationDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -12,15 +12,15 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.util.List;
+import java.sql.Date;
 import models.Account;
-import models.Event;
+import models.Registration;
 
 /**
  *
  * @author User
  */
-public class HomeController extends HttpServlet {
+public class RegisterController extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -39,10 +39,10 @@ public class HomeController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet HomeController</title>");
+            out.println("<title>Servlet RegisterController</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet HomeController at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet RegisterController at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -60,33 +60,7 @@ public class HomeController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        Account account = (Account) session.getAttribute("account");
-        if (account == null) {
-            response.sendRedirect("login");
-        } else {
-            String keyword = request.getParameter("keyword");
-            int page = 1;
-            int pageSize = 6;
-
-            if (request.getParameter("page") != null) {
-                page = Integer.parseInt(request.getParameter("page"));
-            }
-
-            EventDAO dao = new EventDAO();
-
-            int totalEvents = dao.countOpenEvents(keyword);
-            int totalPages = (int) Math.ceil(totalEvents * 1.0 / pageSize);
-
-            List<Event> events = dao.getAvailableEvents(keyword, page, pageSize);
-
-            request.setAttribute("events", events);
-            request.setAttribute("currentPage", page);
-            request.setAttribute("totalPages", totalPages);
-            request.getRequestDispatcher("views/home.jsp")
-                    .forward(request, response);
-        }
-
+        processRequest(request, response);
     }
 
     /**
@@ -100,7 +74,37 @@ public class HomeController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        HttpSession session = request.getSession();
+        Date today = new Date(System.currentTimeMillis());
+        Account account = (Account) session.getAttribute("account");
+        if (account == null) {
+            response.sendRedirect("login");
+        } else {
+            int eventId = Integer.parseInt(request.getParameter("eventId"));
+            int runnerId = (int) session.getAttribute("runnerId");
+            RegistrationDAO dao = new RegistrationDAO();
+
+            String status = dao.getRegistrationStatus(eventId, runnerId);
+
+            if ("Registered".equals(status) || "ACCEPTED".equals(status)) {
+
+                session.setAttribute("msg", "You already registered this event.");
+
+            } else if ("CANCELLED".equals(status)) {
+
+                dao.reRegister(eventId, runnerId, today);
+                session.setAttribute("msg", "Register again successfully!");
+
+            } else {
+                // chưa từng đăng ký → INSERT
+                Registration reg
+                        = new Registration(eventId, runnerId, today, "", "Registered");
+                dao.insertRegistration(reg);
+                session.setAttribute("msg", "Register successfully!");
+            }
+
+            response.sendRedirect("home");
+        }
     }
 
     /**

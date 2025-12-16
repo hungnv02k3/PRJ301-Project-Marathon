@@ -5,6 +5,8 @@
 package controllers;
 
 import dal.EventDAO;
+import dal.RegistrationDAO;
+import dal.RunnerDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -12,7 +14,6 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.util.List;
 import models.Account;
 import models.Event;
 
@@ -20,7 +21,7 @@ import models.Event;
  *
  * @author User
  */
-public class HomeController extends HttpServlet {
+public class EventDetailController extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -39,10 +40,10 @@ public class HomeController extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet HomeController</title>");
+            out.println("<title>Servlet EventDetailController</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet HomeController at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet EventDetailController at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -65,28 +66,44 @@ public class HomeController extends HttpServlet {
         if (account == null) {
             response.sendRedirect("login");
         } else {
-            String keyword = request.getParameter("keyword");
-            int page = 1;
-            int pageSize = 6;
+            int eventId = Integer.parseInt(request.getParameter("id"));
+            EventDAO eventDAO = new EventDAO();
+            RegistrationDAO regDAO = new RegistrationDAO();
+            RunnerDAO runnerDAO = new RunnerDAO();
 
-            if (request.getParameter("page") != null) {
-                page = Integer.parseInt(request.getParameter("page"));
+            Event event = eventDAO.getEventById(eventId);
+            if (event == null) {
+                response.sendRedirect("home");
+                return;
             }
 
-            EventDAO dao = new EventDAO();
+            int registeredCount = regDAO.countRegisteredByEvent(eventId);
 
-            int totalEvents = dao.countOpenEvents(keyword);
-            int totalPages = (int) Math.ceil(totalEvents * 1.0 / pageSize);
+            boolean isFull = event.getMaxParticipants() > 0
+                    && registeredCount >= event.getMaxParticipants();
 
-            List<Event> events = dao.getAvailableEvents(keyword, page, pageSize);
+            boolean isExpired = event.getRegistrationDeadline() != null
+                    && event.getRegistrationDeadline().before(new java.util.Date());
 
-            request.setAttribute("events", events);
-            request.setAttribute("currentPage", page);
-            request.setAttribute("totalPages", totalPages);
-            request.getRequestDispatcher("views/home.jsp")
+            boolean alreadyRegistered = false;
+
+            Account acc = (Account) request.getSession().getAttribute("account");
+            if (acc != null && acc.getRole().equals("runner")) {
+                int runnerId = runnerDAO.findRunnerIDByAccountID(acc.getAccountId());
+                String status = regDAO.getRegistrationStatus(eventId, runnerId);
+                if ("Registered".equals(status) || "ACCEPTED".equals(status)) {
+                    alreadyRegistered = regDAO.isRegistered(eventId, runnerId);
+                }
+            }
+            request.setAttribute("event", event);
+            request.setAttribute("registeredCount", registeredCount);
+            request.setAttribute("isFull", isFull);
+            request.setAttribute("isExpired", isExpired);
+            request.setAttribute("alreadyRegistered", alreadyRegistered);
+
+            request.getRequestDispatcher("views/eventdetail.jsp")
                     .forward(request, response);
         }
-
     }
 
     /**

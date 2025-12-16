@@ -5,6 +5,7 @@
 package controllers;
 
 import dal.AccountDAO;
+import dal.RunnerDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -68,21 +69,21 @@ public class LoginController extends HttpServlet {
         request.getRequestDispatcher("views/login.jsp")
                 .forward(request, response);
     }
-
+    
     @Override
     protected void doPost(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
-
+        
         String username = request.getParameter("username");
         String password = request.getParameter("password");
-
+        RunnerDAO runDAO = new RunnerDAO();
         AccountDAO accDAO = new AccountDAO();
         Account acc = accDAO.getAccountByUsername(username);
-
+        
         if (acc == null || !acc.getPassword().equals(password)) {
             request.setAttribute("error", "Invalid username or password!");
-            request.getRequestDispatcher("login.jsp")
+            request.getRequestDispatcher("views/login.jsp")
                     .forward(request, response);
             return;
         }
@@ -93,6 +94,7 @@ public class LoginController extends HttpServlet {
 
         // Điều hướng theo role
         if ("runner".equals(acc.getRole())) {
+            session.setAttribute("runnerId", runDAO.findRunnerIDByAccountID(acc.getAccountId()));
             response.sendRedirect("home");
         } else if ("organizer".equals(acc.getRole())) {
             response.sendRedirect("organizer/home");
