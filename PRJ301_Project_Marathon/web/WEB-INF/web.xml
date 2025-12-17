@@ -80,4 +80,7 @@
         <servlet-name>RunnerProfileController</servlet-name>
         <url-pattern>/profile</url-pattern>
     </servlet-mapping>
+    <welcome-file-list>
+    <welcome-file>login</welcome-file>
+</welcome-file-list>
 </web-app>

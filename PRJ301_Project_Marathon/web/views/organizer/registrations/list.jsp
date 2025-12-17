@@ -28,7 +28,7 @@
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-sm-4">
-                                <p><strong>Event Name:</strong> ${event.name}</p>
+                                <p><strong>Event Name:</strong> ${event.eventName}</p>
                             </div>
                             <div class="col-sm-4">
                                 <p><strong>Event Date:</strong> ${event.eventDate}</p>
@@ -81,7 +81,7 @@
                         <tbody>
                             <c:forEach var="reg" items="${registrations}">
                                 <tr>
-                                    <td>${reg.registrationId}</td>
+                                    <td>${reg.getRegistrationId()}</td>
                                     <td>${reg.runnerName}</td>
                                     <td>${reg.runnerEmail}</td>
                                     <td>${reg.runnerPhone}</td>
@@ -104,7 +104,7 @@
                                         <c:choose>
                                             <c:when test="${event.hasStarted()}">
                                                 <!-- Event has started - show result entry only for approved registrations -->
-                                                <c:if test="${reg.status == 'Registered'}">
+                                                <c:if test="${reg.status == 'ACCEPTED'}">
                                                     <a href="${pageContext.request.contextPath}/organizer/registrations/result?registrationId=${reg.registrationId}&eventId=${event.eventId}"
                                                        class="btn btn-sm btn-primary"
                                                        style="margin: 0 !important; margin-right: 5px;">
@@ -114,7 +114,7 @@
                                             </c:when>
                                             <c:otherwise>
                                                 <!-- Event not started - show approve/reject and assign bib -->
-                                                <c:if test="${reg.status != 'Registered'}">
+                                                <c:if test="${reg.status == 'Registered'}">
                                                     <form method="post" action="${pageContext.request.contextPath}/organizer/registrations/approve"
                                                           style="display: inline-block; margin-right: 5px; vertical-align: middle; margin-top: 0; margin-bottom: 0;">
                                                         <input type="hidden" name="registrationId" value="${reg.registrationId}">
@@ -124,7 +124,7 @@
                                                         </button>
                                                     </form>
                                                 </c:if>
-                                                <c:if test="${reg.status != 'Rejected'}">
+                                                <c:if test="${reg.status == 'Rejected'}">
                                                     <form method="post" action="${pageContext.request.contextPath}/organizer/registrations/reject"
                                                           style="display: inline-block; margin-right: 5px; vertical-align: middle; margin-top: 0; margin-bottom: 0;">
                                                         <input type="hidden" name="registrationId" value="${reg.registrationId}">
@@ -136,7 +136,7 @@
                                                         </button>
                                                     </form>
                                                 </c:if>
-                                                <c:if test="${empty reg.bibNumber && reg.status == 'Registered'}">
+                                                <c:if test="${reg.status == 'ACCEPTED'}">
                                                     <form method="post" action="${pageContext.request.contextPath}/organizer/registrations/assign-bib"
                                                           style="display: inline-block; margin-right: 5px; vertical-align: middle; margin-top: 0; margin-bottom: 0;">
                                                         <input type="hidden" name="registrationId" value="${reg.registrationId}">

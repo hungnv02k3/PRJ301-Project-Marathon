@@ -28,9 +28,11 @@
 
                 <div class="row">
                     <div class="col-sm-12">
-                        <a href="${pageContext.request.contextPath}/organizer/checkpoints/add?routeId=${route.routeId}" class="btn btn-primary" style="margin-right: 10px; margin-top: 0; margin-bottom: 0; vertical-align: top;">
-                            <i class="fa fa-plus"></i> Add Checkpoint
-                        </a>
+                        <c:if test="${!event.hasStarted()}">
+                            <a href="${pageContext.request.contextPath}/organizer/checkpoints/add?routeId=${route.routeId}" class="btn btn-primary" style="margin-right: 10px; margin-top: 0; margin-bottom: 0; vertical-align: top;">
+                                <i class="fa fa-plus"></i> Add Checkpoint
+                            </a>
+                        </c:if>
                         <a href="${pageContext.request.contextPath}/organizer/routes/view?id=${route.routeId}" class="btn btn-info" style="margin-right: 10px; margin-top: 0; margin-bottom: 0; vertical-align: top;">
                             <i class="fa fa-map"></i> View Route Map
                         </a>
@@ -49,7 +51,11 @@
                             <div class="panel-body">
                                 <c:choose>
                                     <c:when test="${empty checkpoints}">
-                                        <p class="text-center">No checkpoints found. <a href="${pageContext.request.contextPath}/organizer/checkpoints/add?routeId=${route.routeId}">Add one</a></p>
+                                        <p class="text-center">No checkpoints found. 
+                                            <c:if test="${!event.hasStarted()}">
+                                                <a href="${pageContext.request.contextPath}/organizer/checkpoints/add?routeId=${route.routeId}">Add one</a>
+                                            </c:if>
+                                        </p>
                                     </c:when>
                                     <c:otherwise>
                                         <div class="table-responsive">
@@ -63,15 +69,6 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <c:set var="now" value="<%= new java.util.Date() %>" />
-                                                    <c:set var="deadlinePassed" value="false" />
-                                                    <c:if test="${event.registrationDeadline != null}">
-                                                        <c:set var="deadlineTime" value="${event.registrationDeadline.time}" />
-                                                        <c:set var="nowTime" value="${now.time}" />
-                                                        <c:if test="${deadlineTime <= nowTime}">
-                                                            <c:set var="deadlinePassed" value="true" />
-                                                        </c:if>
-                                                    </c:if>
                                                     <c:forEach var="checkpoint" items="${checkpoints}">
                                                         <tr>
                                                             <td>${checkpoint.sequenceOrder}</td>
@@ -87,7 +84,7 @@
                                                                 </c:choose>
                                                             </td>
                                                             <td>
-                                                                <c:if test="${!deadlinePassed}">
+                                                                <c:if test="${!event.hasStarted()}">
                                                                     <a href="${pageContext.request.contextPath}/organizer/checkpoints/edit?id=${checkpoint.cpId}" 
                                                                        class="btn btn-sm btn-warning" style="margin-right: 5px;">
                                                                         <i class="fa fa-edit"></i> Edit

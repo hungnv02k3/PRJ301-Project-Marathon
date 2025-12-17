@@ -40,7 +40,6 @@
                             <tr>
                                 <th>ID</th>
                                 <th>Event Name</th>
-                                <th>Description</th>
                                 <th>Event Date</th>
                                 <th>Location</th>
                                 <th>Max Participants</th>
@@ -53,8 +52,7 @@
                             <c:forEach var="event" items="${events}">
                                 <tr>
                                     <td>${event.eventId}</td>
-                                    <td>${event.name}</td>
-                                    <td>${event.description}</td>
+                                    <td>${event.eventName}</td>
                                     <td>${event.eventDate}</td>
                                     <td>${event.location}</td>
                                     <td>${event.maxParticipants}</td>

@@ -9,10 +9,10 @@ import models.Organizer;
  * @author THINKPAD
  */
 public class OrganizerDAO extends DBContext {
-    
+
     private PreparedStatement stm;
     private ResultSet rs;
-    
+
     public Organizer getOrganizerByEmail(String email) {
         Organizer organizer = null;
         try {
@@ -32,7 +32,7 @@ public class OrganizerDAO extends DBContext {
         }
         return organizer;
     }
-    
+
     public Organizer getOrganizerById(int organizerId) {
         Organizer organizer = null;
         try {
@@ -52,8 +52,22 @@ public class OrganizerDAO extends DBContext {
         }
         return organizer;
     }
+
+    public int getOrgIDByAccID(int accountId) {
+        String sql = "SELECT organizer_id FROM Organizers WHERE account_id = ?";
+
+        try {
+            stm = connection.prepareStatement(sql);
+            stm.setInt(1, accountId);
+            rs = stm.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt("organizer_id");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } 
+        return -1; // không tìm thấy
+    }
+
 }
-
-
-
-

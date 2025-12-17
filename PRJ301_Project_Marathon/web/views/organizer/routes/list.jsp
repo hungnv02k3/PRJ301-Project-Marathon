@@ -5,7 +5,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Routes - ${event.name}</title>
+    <title>Routes - ${event.eventName}</title>
     <link href="${pageContext.request.contextPath}/static/css/bootstrap.min.css" rel="stylesheet">
     <link href="${pageContext.request.contextPath}/static/css/font-awesome.min.css" rel="stylesheet">
 </head>
@@ -17,7 +17,7 @@
     <div class="container">
         <div class="row">
             <div class="col-sm-12">
-                <h2 class="title text-center">Routes - ${event.name}</h2>
+                <h2 class="title text-center">Routes - ${event.eventName}</h2>
             </div>
         </div>
         
@@ -29,9 +29,11 @@
         
         <div class="row">
             <div class="col-sm-12">
-                <a href="${pageContext.request.contextPath}/organizer/routes/add?eventId=${event.eventId}" class="btn btn-primary" style="margin-right: 10px;">
-                    <i class="fa fa-plus"></i> Create New Route
-                </a>
+                <c:if test="${!event.hasStarted()}">
+                    <a href="${pageContext.request.contextPath}/organizer/routes/add?eventId=${event.eventId}" class="btn btn-primary" style="margin-right: 10px;">
+                        <i class="fa fa-plus"></i> Create New Route
+                    </a>
+                </c:if>
                 <a href="${pageContext.request.contextPath}/organizer/events" class="btn btn-primary">
                     <i class="fa fa-arrow-left"></i> Back to Events
                 </a>
@@ -47,7 +49,11 @@
                     <div class="panel-body">
                         <c:choose>
                             <c:when test="${empty routes}">
-                                <p class="text-center">No routes found. <a href="${pageContext.request.contextPath}/organizer/routes/add?eventId=${event.eventId}">Create one</a></p>
+                                <p class="text-center">No routes found. 
+                                    <c:if test="${!event.hasStarted()}">
+                                        <a href="${pageContext.request.contextPath}/organizer/routes/add?eventId=${event.eventId}">Create one</a>
+                                    </c:if>
+                                </p>
                             </c:when>
                             <c:otherwise>
                                 <div class="table-responsive">
@@ -62,15 +68,6 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <c:set var="now" value="<%= new java.util.Date() %>" />
-                                            <c:set var="deadlinePassed" value="false" />
-                                            <c:if test="${event.registrationDeadline != null}">
-                                                <c:set var="deadlineTime" value="${event.registrationDeadline.time}" />
-                                                <c:set var="nowTime" value="${now.time}" />
-                                                <c:if test="${deadlineTime <= nowTime}">
-                                                    <c:set var="deadlinePassed" value="true" />
-                                                </c:if>
-                                            </c:if>
                                             <c:forEach var="route" items="${routes}">
                                                 <tr>
                                                     <td>${route.routeId}</td>
@@ -86,7 +83,7 @@
                                                            class="btn btn-sm btn-primary" style="margin: 0 !important; margin-right: 5px;">
                                                             <i class="fa fa-map-marker"></i> Checkpoints
                                                         </a>
-                                                        <c:if test="${!deadlinePassed}">
+                                                        <c:if test="${!event.hasStarted()}">
                                                             <a href="${pageContext.request.contextPath}/organizer/routes/edit?id=${route.routeId}" 
                                                                class="btn btn-sm btn-warning" style="margin: 0 !important; margin-right: 5px;">
                                                                 <i class="fa fa-edit"></i> Edit

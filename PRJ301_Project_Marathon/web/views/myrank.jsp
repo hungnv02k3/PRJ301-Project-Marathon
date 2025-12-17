@@ -40,9 +40,9 @@
                             <td>${r.netTime} sec</td>
                             <td class="rank-cell">
                                 <c:choose>
-                                    <c:when test="${r.rankingOverall == 1}">🥇</c:when>
-                                    <c:when test="${r.rankingOverall == 2}">🥈</c:when>
-                                    <c:when test="${r.rankingOverall == 3}">🥉</c:when>
+                                    <c:when test="${r.rankingOverall == 1}">#${r.rankingOverall}-Champion</c:when>
+                                    <c:when test="${r.rankingOverall == 2}">#${r.rankingOverall}-Silver</c:when>
+                                    <c:when test="${r.rankingOverall == 3}">#${r.rankingOverall}-Cooper</c:when>
                                     <c:otherwise>#${r.rankingOverall}</c:otherwise>
                                 </c:choose>
                             </td>

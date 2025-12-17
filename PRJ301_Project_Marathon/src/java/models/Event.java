@@ -1,23 +1,25 @@
 package models;
 
-
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 
 /**
  *
  * @author THINKPAD
  */
 public class Event {
+
     private int eventId;
     private int organizerId;
     private String eventName;
     private Date eventDate;
-    private Timestamp eventStartTime; 
+    private Timestamp eventStartTime;
     private String location;
     private int maxParticipants;
     private Date registrationDeadline;
     private String status;
+
     // getters + setters
     public Event(int eventId, int organizerId, String eventName, String location, Date eventDate, String status, int maxParticipants, Date registrationDeadline, String status1) {
         this.eventId = eventId;
@@ -28,6 +30,17 @@ public class Event {
         this.location = location;
         this.registrationDeadline = registrationDeadline;
         this.maxParticipants = maxParticipants;
+        this.status = status;
+    }
+
+    public Event(int eventId, int organizerId, String eventName, Date eventDate, String location, int maxParticipants, Date registrationDeadline, String status) {
+        this.eventId = eventId;
+        this.organizerId = organizerId;
+        this.eventName = eventName;
+        this.eventDate = eventDate;
+        this.location = location;
+        this.maxParticipants = maxParticipants;
+        this.registrationDeadline = registrationDeadline;
         this.status = status;
     }
 
@@ -50,7 +63,6 @@ public class Event {
     public Event() {
     }
 
-
     public Timestamp getEventStartTime() {
         return eventStartTime;
     }
@@ -66,8 +78,6 @@ public class Event {
     public void setEventId(int eventId) {
         this.eventId = eventId;
     }
-
-
 
     public Date getEventDate() {
         return eventDate;
@@ -108,19 +118,13 @@ public class Event {
     public void setStatus(String status) {
         this.status = status;
     }
-    
+
     public boolean hasStarted() {
-        if (eventStartTime != null) {
-            java.util.Date now = new java.util.Date();
-            return eventStartTime.before(now) || eventStartTime.equals(now);
-        }
         if (eventDate == null) {
             return false;
         }
-        java.util.Date today = new java.util.Date();
-        return eventDate.before(today) || eventDate.equals(today);
+        LocalDate today = LocalDate.now();
+        LocalDate eventLocalDate = eventDate.toLocalDate();
+        return eventLocalDate.isBefore(today);
     }
 }
-
-
-

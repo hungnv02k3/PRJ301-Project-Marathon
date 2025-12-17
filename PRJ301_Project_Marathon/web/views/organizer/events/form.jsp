@@ -37,12 +37,7 @@
                             
                             <div class="form-group">
                                 <label for="name">Event Name *</label>
-                                <input type="text" class="form-control" id="name" name="name" value="${event.name}" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="description">Description</label>
-                                <textarea class="form-control" id="description" name="description" rows="4">${event.description}</textarea>
+                                <input type="text" class="form-control" id="name" name="name" value="${event.eventName}" required>
                             </div>
                             
                             <div class="form-group">

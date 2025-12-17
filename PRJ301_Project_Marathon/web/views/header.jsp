@@ -33,9 +33,17 @@
             <div class="row">
                 <div class="col-sm-4">
                     <div class="logo pull-left">
-                        <a href="${pageContext.request.contextPath}/home">
-                            Home
+                        <c:if test="${sessionScope.account.role == 'runner'}">
+                            <a href="${pageContext.request.contextPath}/home">
+                                Home
+                            </a>
+                        </c:if>
+                        <c:if test="${sessionScope.account.role == 'organizer'}">
+                            <a href="${pageContext.request.contextPath}/organizer/dashboard">
+                            Dashboard
                         </a>
+                        </c:if>
+                        
                     </div>
                 </div>
                 <div class="col-sm-8">
@@ -65,11 +73,11 @@
                                             </a>
                                         </li>
                                     </c:if>
-                                        <li>
-                                            <a href="#" onclick="openLogoutModal()">
-                                                <i class="fa fa-sign-out"></i> Logout
-                                            </a>
-                                        </li>
+                                    <li>
+                                        <a href="#" onclick="openLogoutModal()">
+                                            <i class="fa fa-sign-out"></i> Logout
+                                        </a>
+                                    </li>
                                 </c:when>
                                 <c:otherwise>
                                     <li><a href="${pageContext.request.contextPath}/login">Login</a></li>

@@ -69,7 +69,7 @@
                             <c:forEach var="event" items="${events}" begin="0" end="4">
                                 <tr>
                                     <td>${event.eventId}</td>
-                                    <td>${event.name}</td>
+                                    <td>${event.eventName}</td>
                                     <td>${event.eventDate}</td>
                                     <td>${event.location}</td>
                                     <td>${event.maxParticipants}</td>

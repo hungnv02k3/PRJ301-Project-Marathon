@@ -25,7 +25,8 @@ public class Registration {
     }
 
     
-    public Registration(int eventId, int runnerId, int runnerId1, Date registrationDate, String bibNumber, String status) {
+    public Registration(int registrationId, int eventId, int runnerId, Date registrationDate, String bibNumber, String status) {
+        this.registrationId = registrationId;
         this.eventId = eventId;
         this.runnerId = runnerId;
         this.registrationDate = registrationDate;

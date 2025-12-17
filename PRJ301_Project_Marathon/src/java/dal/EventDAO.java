@@ -28,18 +28,17 @@ public class EventDAO extends DBContext {
                 int eventId = rs.getInt("event_id");
                 int orgId = rs.getInt("organizer_id");
                 String name = rs.getString("event_name");
-                String description = ""; // Description column doesn't exist in new DB schema
+                String location = rs.getString("location");
                 Date eventDate = rs.getDate("event_date");
+                String status = rs.getString("status");
+                int maxParticipants = rs.getInt("max_participants");
+                Date registrationDeadline = rs.getDate("registration_deadline");
                 // Get event_start_time, fallback to event_date if null
                 Timestamp eventStartTime = rs.getTimestamp("event_start_time");
                 if (eventStartTime == null && eventDate != null) {
                     eventStartTime = new Timestamp(eventDate.getTime());
                 }
-                String location = rs.getString("location");
-                int maxParticipants = rs.getInt("max_participants");
-                Date registrationDeadline = rs.getDate("registration_deadline");
-                String status = rs.getString("status");
-                Event event = new Event(eventId, orgId, name, description, eventDate, location, maxParticipants, registrationDeadline, status);
+                Event event = new Event(eventId, orgId, name, location, eventDate, status, maxParticipants, registrationDeadline, status);
                 event.setEventStartTime(eventStartTime);
                 list.add(event);
             }
@@ -60,18 +59,17 @@ public class EventDAO extends DBContext {
                 int id = rs.getInt("event_id");
                 int organizerId = rs.getInt("organizer_id");
                 String name = rs.getString("event_name");
-                String description = ""; // Description column doesn't exist in new DB schema
+                String location = rs.getString("location");
                 Date eventDate = rs.getDate("event_date");
+                String status = rs.getString("status");
+                int maxParticipants = rs.getInt("max_participants");
+                Date registrationDeadline = rs.getDate("registration_deadline");
                 // Get event_start_time, fallback to event_date if null
                 Timestamp eventStartTime = rs.getTimestamp("event_start_time");
                 if (eventStartTime == null && eventDate != null) {
                     eventStartTime = new Timestamp(eventDate.getTime());
                 }
-                String location = rs.getString("location");
-                int maxParticipants = rs.getInt("max_participants");
-                Date registrationDeadline = rs.getDate("registration_deadline");
-                String status = rs.getString("status");
-                event = new Event(id, organizerId, name, description, eventDate, location, maxParticipants, registrationDeadline, status);
+                event = new Event(id, organizerId, name, location, eventDate, status, maxParticipants, registrationDeadline, status);
                 event.setEventStartTime(eventStartTime);
             }
         } catch (Exception e) {
@@ -79,6 +77,8 @@ public class EventDAO extends DBContext {
         }
         return event;
     }
+
+    
 
     public int countOpenEvents(String keyword) {
         int count = 0;

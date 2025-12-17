@@ -57,7 +57,7 @@
                         <h3 class="panel-title">Route Information</h3>
                     </div>
                     <div class="panel-body">
-                        <p><strong>Event:</strong> ${event.name}</p>
+                        <p><strong>Event:</strong> ${event.eventName}</p>
                         <p><strong>Distance:</strong> ${route.distanceKm} km</p>
                         <p><strong>Description:</strong> ${route.description}</p>
                         <p><strong>Checkpoints:</strong> ${route.checkpointCount}</p>

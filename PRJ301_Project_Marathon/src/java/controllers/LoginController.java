@@ -60,27 +60,39 @@ public class LoginController extends HttpServlet {
     protected void doGet(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
+        RunnerDAO runDAO = new RunnerDAO();
         HttpSession session = request.getSession();
         Account account = (Account) session.getAttribute("account");
+
         if (account != null) {
-            response.sendRedirect("home");
-            return;
+            if ("runner".equals(account.getRole())) {
+                session.setAttribute("runnerId", runDAO.findRunnerIDByAccountID(account.getAccountId()));
+                response.sendRedirect("home");
+                return; // <--- kết thúc method sau redirect
+            } else if ("organizer".equals(account.getRole())) {
+                response.sendRedirect("organizer/dashboard");
+                return;
+            } else {
+                response.sendRedirect("admin/home");
+                return;
+            }
         }
-        request.getRequestDispatcher("views/login.jsp")
-                .forward(request, response);
+
+        // Chỉ forward nếu account == null
+        request.getRequestDispatcher("views/login.jsp").forward(request, response);
     }
-    
+
     @Override
     protected void doPost(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         String username = request.getParameter("username");
         String password = request.getParameter("password");
         RunnerDAO runDAO = new RunnerDAO();
         AccountDAO accDAO = new AccountDAO();
         Account acc = accDAO.getAccountByUsername(username);
-        
+
         if (acc == null || !acc.getPassword().equals(password)) {
             request.setAttribute("error", "Invalid username or password!");
             request.getRequestDispatcher("views/login.jsp")
@@ -97,7 +109,7 @@ public class LoginController extends HttpServlet {
             session.setAttribute("runnerId", runDAO.findRunnerIDByAccountID(acc.getAccountId()));
             response.sendRedirect("home");
         } else if ("organizer".equals(acc.getRole())) {
-            response.sendRedirect("organizer/home");
+            response.sendRedirect("organizer/dashboard");
         } else {
             response.sendRedirect("admin/home");
         }

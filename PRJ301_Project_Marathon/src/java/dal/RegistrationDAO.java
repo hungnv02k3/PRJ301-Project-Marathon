@@ -88,7 +88,7 @@ public class RegistrationDAO extends DBContext {
     
     public void approveRegistration(int registrationId) {
         try {
-            String sqlStatement = "UPDATE Registrations SET status = 'Registered' WHERE registration_id = ?";
+            String sqlStatement = "UPDATE Registrations SET status = 'ACCEPTED' WHERE registration_id = ?";
             stm = connection.prepareStatement(sqlStatement);
             stm.setInt(1, registrationId);
             stm.executeUpdate();
