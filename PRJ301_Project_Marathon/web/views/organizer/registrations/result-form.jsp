@@ -43,7 +43,7 @@
                         </div>
                         <div class="row">
                             <div class="col-sm-6">
-                                <p><strong>Event:</strong> ${event.name}</p>
+                                <p><strong>Event:</strong> ${event.eventName}</p>
                             </div>
                             <div class="col-sm-6">
                                 <p><strong>Event Date:</strong> ${event.eventDate}</p>

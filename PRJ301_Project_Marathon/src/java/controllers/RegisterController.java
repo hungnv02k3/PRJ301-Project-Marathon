@@ -19,7 +19,6 @@ import models.Account;
 import models.Event;
 import models.Registration;
 import models.Runner;
-import utils.EmailUtil;
 
 /**
  *
@@ -82,19 +81,14 @@ public class RegisterController extends HttpServlet {
         HttpSession session = request.getSession();
         Date today = new Date(System.currentTimeMillis());
         Account account = (Account) session.getAttribute("account");
-        RunnerDAO runnerDAO = new RunnerDAO();
-        EventDAO eventDAO = new EventDAO();
         if (account == null) {
             response.sendRedirect("login");
         } else {
             int eventId = Integer.parseInt(request.getParameter("eventId"));
             int runnerId = (int) session.getAttribute("runnerId");
             RegistrationDAO dao = new RegistrationDAO();
-
             String status = dao.getRegistrationStatus(eventId, runnerId);
-
             if ("Registered".equals(status) || "ACCEPTED".equals(status)) {
-
                 session.setAttribute("msg", "You already registered this event.");
 
             } else if ("CANCELLED".equals(status)) {
@@ -102,20 +96,10 @@ public class RegisterController extends HttpServlet {
                 dao.reRegister(eventId, runnerId, today);
                 session.setAttribute("msg", "Register again successfully!");
 
-            } else {
-                Runner runner = runnerDAO.getRunnerByAccountId(account.getAccountId());
-                Event event = eventDAO.getEventById(eventId);
-
-                EmailUtil.sendRegistrationMail(
-                        runner.getEmail(),
-                        runner.getFullName(),
-                        event.getEventName(),
-                        event.getEventDate().toString(),
-                        event.getLocation()
-                );
+            } else {               
                 // chưa từng đăng ký → INSERT
                 Registration reg
-                        = new Registration(eventId, runnerId, runnerId, today, "", "Registered");
+                        = new Registration(eventId, eventId, runnerId, today, "", "Registered");
                 dao.insertRegistration(reg);
                 session.setAttribute("msg", "Register successfully!");
             }

@@ -31,7 +31,7 @@ public class ResultDAO extends DBContext {
                                + "INNER JOIN Registrations r ON res.registration_id = r.registration_id "
                                + "INNER JOIN Runners ru ON r.runner_id = ru.runner_id "
                                + "INNER JOIN Events e ON r.event_id = e.event_id "
-                               + "WHERE e.event_id = ? AND r.status = 'Registered' "
+                               + "WHERE e.event_id = ? AND r.status = 'ACCEPTED' "
                                + "ORDER BY res.ranking_overall ASC, res.net_time ASC";
             stm = connection.prepareStatement(sqlStatement);
             stm.setInt(1, eventId);
@@ -178,7 +178,7 @@ public class ResultDAO extends DBContext {
                 String getResultsSql = "SELECT res.result_id, res.registration_id, res.net_time "
                                      + "FROM Results res "
                                      + "INNER JOIN Registrations r ON res.registration_id = r.registration_id "
-                                     + "WHERE r.event_id = ? AND r.status = 'Registered' AND res.net_time IS NOT NULL "
+                                     + "WHERE r.event_id = ? AND r.status = 'ACCEPTED' AND res.net_time IS NOT NULL "
                                      + "ORDER BY res.net_time ASC";
                 PreparedStatement getResultsStm = connection.prepareStatement(getResultsSql);
                 getResultsStm.setInt(1, eventId);

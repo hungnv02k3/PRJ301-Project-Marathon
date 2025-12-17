@@ -62,6 +62,19 @@ public class HomeController extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession();
         Account account = (Account) session.getAttribute("account");
+        if (account != null) {
+            if ("runner".equals(account.getRole())) {
+                session.setAttribute("runnerId", runDAO.findRunnerIDByAccountID(account.getAccountId()));
+                response.sendRedirect("home");
+                return; // <--- kết thúc method sau redirect
+            } else if ("organizer".equals(account.getRole())) {
+                response.sendRedirect("organizer/dashboard");
+                return;
+            } else {
+                response.sendRedirect("admin/home");
+                return;
+            }
+        }
         if (account == null) {
             response.sendRedirect("login");
         } else {
