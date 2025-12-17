@@ -5,6 +5,7 @@
 package controllers;
 
 import dal.EventDAO;
+import dal.RunnerDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -60,6 +61,7 @@ public class HomeController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+                RunnerDAO runDAO = new RunnerDAO();
         HttpSession session = request.getSession();
         Account account = (Account) session.getAttribute("account");
         if (account != null) {
